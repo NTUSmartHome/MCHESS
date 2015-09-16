@@ -1,0 +1,18 @@
+@relation test1
+@Attribute a1 numeric
+@Attribute a2 numeric
+@Attribute class {"a","b","c"}
+@data
+1,2,a
+1,3,a
+2,2,a
+1,2,a
+1,3,a
+5,18,b
+6,19,b
+5,17,b
+6,17,b
+11,12,c
+12,13,c
+11,13,c
+12,12,c
