@@ -49,10 +49,23 @@ public class BaseAffinityPropagation extends BaseMLCluster {
     public Dataset run(){
         if(this.trainingData.getRecordNumber()<=3){
             clusters = new Clusters();
-            Cluster cluster = new Cluster(0);
-            cluster.add(this.trainingData.get(0));
-            clusters.add(0,cluster);
-            this.trainingData.get(0).setY(0);
+            switch (this.trainingData.getRecordNumber()){
+                case 3:
+                    Cluster cluster3 = new Cluster(2);
+                    this.trainingData.get(2).setY(2);
+                    cluster3.add(this.trainingData.get(2));
+                    clusters.add(2, cluster3);
+                case 2:
+                    Cluster cluster2 = new Cluster(1);
+                    this.trainingData.get(1).setY(1);
+                    cluster2.add(this.trainingData.get(1));
+                    clusters.add(1, cluster2);
+                case 1:
+                    Cluster cluster1 = new Cluster(0);
+                    this.trainingData.get(0).setY(0);
+                    cluster1.add(this.trainingData.get(0));
+                    clusters.add(0, cluster1);
+            }
         }
         else {
             buildSimilarityMatrix(this.trainingData);
@@ -109,7 +122,6 @@ public class BaseAffinityPropagation extends BaseMLCluster {
 
         for(int exemplar: clusterHeadSet){
             Cluster cluster = new Cluster(clusterId);
-            int c=0;
             for(int i=0; i<exemplars.length; i++) {
                 if (exemplars[i] == exemplar) {
                     trainingData.get(i).setY(clusterId);

@@ -76,6 +76,7 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
             System.out.print("Sensor " + id + ": ");
             for (BaseSensor instance : instances) {
                 double sensorValue = instance.getValue();
+                //System.out.print(sensorValue+"("+instance.getTimestamp()+"), ");
                 System.out.print(sensorValue+", ");
                 Record record = new Record(new Double[]{sensorValue},0);
                 db.add(record);
@@ -85,6 +86,9 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
             //this.dap = new BaseAffinityPropagation();
             dap.setDataset(db);
             dap.run();
+
+            System.out.println("Sensor " + id + ", number of clusters of this sensor is "+dap.getClusters().getNumberOfCluster());
+
         }
         else{
             System.out.println("Sensor "+id+" is not used.");

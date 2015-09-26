@@ -1,6 +1,7 @@
 package utilities.machinelearning.classifiers.BayesianNet;
 
 import utilities.dataobjects.Dataset;
+import utilities.dataobjects.Record;
 
 import java.util.Random;
 
@@ -10,9 +11,10 @@ import java.util.Random;
 public class BNTest {
     BNTest(){
 
-        /*
+
         Dataset db = new Dataset();
         Random random = new Random();
+        /*
         for(int i=0; i<250; i++){
             Integer[] node = new Integer[2];
             node[0] = random.nextInt(2)+100;
@@ -32,7 +34,7 @@ public class BNTest {
             node[1] = random.nextInt(2)-50;
             db.add(node,2);
         }
-        */
+*/
 
         BaseBayesNet bn = new BaseBayesNet();
         //bn.setDataset(db);
@@ -41,6 +43,30 @@ public class BNTest {
         bn.load();
         bn.printEvaluation();
 
+        Integer[] node = new Integer[2];
+        node[0] = random.nextInt(2)-150;
+        node[1] = random.nextInt(2)-50;
+        Record r = new Record(node,0);
+
+        r = bn.predict(r);
+
+        System.out.println("!!Result is " + r.getY());
+
+        node[0] = random.nextInt(2)+100;
+        node[1] = random.nextInt(2)-100;
+        r = new Record(node,0);
+
+        r = bn.predict(r);
+
+        System.out.println("!!Result is "+r.getY());
+
+        node[0] = random.nextInt(2)+50;
+        node[1] = random.nextInt(2)+50;
+        r = new Record(node,0);
+
+        r = bn.predict(r);
+
+        System.out.println("!!Result is "+r.getY());
     }
 
 

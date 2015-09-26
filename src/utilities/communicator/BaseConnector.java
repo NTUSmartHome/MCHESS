@@ -202,6 +202,7 @@ public abstract class BaseConnector implements MessageListener {
 		if (message instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message;
             try {
+
             	processMsg(textMessage.getText());
 			} catch (JMSException e) {
 				e.printStackTrace();

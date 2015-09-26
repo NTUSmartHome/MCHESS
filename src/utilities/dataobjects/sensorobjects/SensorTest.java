@@ -2,7 +2,7 @@ package utilities.dataobjects.sensorobjects;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import utilities.dataobjects.MQMsg;
+import utilities.dataobjects.Message;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -29,9 +29,9 @@ public class SensorTest {
 
 
     public SensorTest(){
-        //buildSensorModel();
+        buildSensorModel();
 
-        loadSensorModel();
+        //loadSensorModel();
 
     }
 
@@ -58,7 +58,7 @@ public class SensorTest {
             System.out.println(line);
 
             for(String mmsg: listenMsg) {
-                MQMsg msg = new MQMsg(mmsg);
+                Message msg = new Message(mmsg);
                 sensors.add(msg.getId(), msg.getValue());
             }
 
@@ -70,9 +70,9 @@ public class SensorTest {
         sensors.buildSensorsClusters();
         sensors.buildDataset();
 
-
         sensors.printSensorDataset();
-        sensors.printSensorsClusters();
+
+        sensors.saveDataset();
     }
 
     private void transferMsg(String msg){

@@ -1,5 +1,7 @@
 package utilities.machinelearning.classifiers.BayesianNet;
 
+import utilities.dataobjects.Dataset;
+import utilities.dataobjects.Record;
 import utilities.machinelearning.baseobjects.BaseMLClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
@@ -18,7 +20,7 @@ import java.util.List;
 public class BaseBayesNet extends BaseMLClassifier{
     protected Classifier bn;
     Instances instances;
-    Instances attSelected;
+    FastVector atts = new FastVector();
     public BaseBayesNet(){
         super();
         checkDirector();
@@ -40,9 +42,11 @@ public class BaseBayesNet extends BaseMLClassifier{
         if(!file.exists()) { file.mkdir();}
     }
 
+
+
     public Classifier run(){
         // weka instance
-        FastVector atts = new FastVector();
+        //FastVector atts ;
         // set class
         FastVector classVals = new FastVector(classes.getYList().size());
         for(Object classVal:classes.getYList()){
@@ -91,6 +95,34 @@ public class BaseBayesNet extends BaseMLClassifier{
         return bn;
     }
 
+    public Record predict(Record instance){
+        try {
+            /*double[] attValues = new double[instance.getX().size()+1];
+            System.out.println("number of attributes is "+attValues.length);
+
+            for (int i = 1; i < attValues.length; i++) {
+                attValues[i] = (Integer)instance.getX().get(i);
+            }
+*/
+
+            Instance instance_ = new Instance(atts.size());
+            for(int dim=1; dim<=instance.getX().size(); dim++) {
+                instance_.setValue((Attribute) atts.elementAt(dim), (double)(Integer) instance.getX().get(dim - 1));
+            }
+            instance_.setValue((Attribute) atts.elementAt(0), "c" + instance.getY());
+
+            instance_.setDataset(this.instances);
+
+            instance.setY(bn.classifyInstance(instance_));
+
+
+            //instance.setY(bn.classifyInstance(new Instance(1.0D,attValues)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return instance;
+    }
+
     public void printEvaluation(){
         // evaluate
         double right = 0.0;
@@ -125,6 +157,12 @@ public class BaseBayesNet extends BaseMLClassifier{
             oos.writeObject(instances);
             oos.flush();
             oos.close();
+
+            fos = new FileOutputStream((String) parameters.get(insts.getModelName())+"_attributes");
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(atts);
+            oos.flush();
+            oos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }  catch (IOException e) {
@@ -148,7 +186,10 @@ public class BaseBayesNet extends BaseMLClassifier{
             this.instances = (Instances) ois.readObject();
             ois.close();
 
-
+            fis = new FileInputStream((String) parameters.get(insts.getModelName())+"_attributes");
+            ois = new ObjectInputStream(fis);
+            this.atts = (FastVector) ois.readObject();
+            ois.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
