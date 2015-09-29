@@ -5,8 +5,6 @@ package utilities.communicator;
 public class Consumer extends BaseConnector{
 
     String msg;
-    Listener listener;
-
 	boolean flag;
 
 	Consumer(){
@@ -40,12 +38,5 @@ public class Consumer extends BaseConnector{
 		return  flag;
 	}
 
-	public void addListener(Listener l) {
-		listener = l;
-	}
-	
-	public void trigger() {
-		listener.onEvent(msg);
-	}
 	
 }

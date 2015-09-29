@@ -22,6 +22,7 @@ public class Cluster implements Serializable,Iterable<Record>{
         clusterDataset = new Dataset();
     }
 
+    public void setClusterId(int id){ clusterId = id;}
     public Integer getClusterHeadId() {
         return clusterHeadId;
     }
@@ -43,9 +44,28 @@ public class Cluster implements Serializable,Iterable<Record>{
     public Object getLabelY() {
         return labelY;
     }
+    public int getNumberRecord(){ return clusterDataset.getRecordNumber();}
     protected void setLabelY(Object labelY) {
         this.labelY = labelY;
     }
+
+    public Record getClusterCenter(){
+        ArrayList<Double> x = new ArrayList<>();
+        int xSize = clusterDataset.get(0).getX().size();
+        for (int i = 0; i < xSize; i++) {
+            x.add(0.0);
+        }
+        for(Integer rId: clusterDataset){
+            for (int i = 0; i < xSize; i++) {
+                x.set(i,x.get(i)+(Double)clusterDataset.get(rId).getX().get(i));
+            }
+        }
+        for (int i = 0; i < xSize; i++) {
+            x.set(i,x.get(i)/clusterDataset.getRecordNumber());
+        }
+        return new Record(x,getClusterId());
+    }
+
 
     public int size() {
         if(clusterDataset == null) {

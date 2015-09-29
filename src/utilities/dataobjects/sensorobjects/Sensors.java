@@ -10,6 +10,7 @@ import java.util.*;
 /**
  * Created by YaHung on 2015/9/15.
  */
+
 public class Sensors implements Serializable, Iterable<Sensor>  {
     Timestamp firstTimestamp;
     Timestamp lastTimestamp;
@@ -39,11 +40,6 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
         sensorDataset.save(filePath+"/sensorsDataset");
     }
 
-    public void printSensorDataset(){
-        for(Integer rId: sensorDataset){
-            System.out.println("Feature: "+sensorDataset.get(rId).getX()+", Result: "+sensorDataset.get(rId).getY());
-        }
-    }
 
     public void add(int sId, double value){
         lastTimestamp = new Timestamp(System.currentTimeMillis());
@@ -75,18 +71,12 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
     }
 
     public void buildSensorsClusters(){
-        for(Sensor sensor: sensors){
-            sensor.buildClusters();
-        }
+        sensors.forEach(utilities.dataobjects.sensorobjects.Sensor::buildClusters);
     }
 
     public void buildDataset(){
         Timestamp iterTimestamp = firstTimestamp;
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(iterTimestamp.getTime());
-        cal.add(Calendar.SECOND, 1);
-        Timestamp goalTimestamp = new Timestamp(cal.getTime().getTime());
+        Timestamp goalTimestamp = getFuturTimestamp(iterTimestamp, 1);
 
         while(iterTimestamp.before(goalTimestamp) && iterTimestamp.before(lastTimestamp)){
             ArrayList<Integer> x = new ArrayList<>();
@@ -101,26 +91,28 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
                     }
                     int result = sensor.predict(nearestInstance.getValue());
 
-                    //System.out.print(result + "(" + nearestInstance.getValue() +"),");
-
                     x.add(result);
                 } else{
-                    //System.out.print("0,");
                     x.add(0);
                 }
 
             }
-            //System.out.println();
+
+            //sensorDataset.add(new Record(x,0));
             sensorDataset.add(new Record(x,0));
 
             iterTimestamp = goalTimestamp;
-            cal = Calendar.getInstance();
-            cal.setTimeInMillis(iterTimestamp.getTime());
-            cal.add(Calendar.SECOND, 1);
-            goalTimestamp = new Timestamp(cal.getTime().getTime());
+            goalTimestamp = getFuturTimestamp(iterTimestamp, 1);
         }
 
         save();
+    }
+
+    private Timestamp getFuturTimestamp(Timestamp currentTimestamp, int second){
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(currentTimestamp.getTime());
+        cal.add(Calendar.SECOND, second);
+        return new Timestamp(cal.getTime().getTime());
     }
 
     public Integer predict(int sId, double value){
@@ -136,9 +128,8 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
     }
 
     public void save(){
-        FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(filePath+"/AllSensors");
+            FileOutputStream fos = new FileOutputStream(filePath+"/AllSensors");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(this);
             oos.flush();
@@ -151,14 +142,12 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
     }
 
     public void load(){
-        Sensors s;
-        FileInputStream fis = null;
         try {
-            fis = new FileInputStream(filePath+"/AllSensors");
+            FileInputStream fis = new FileInputStream(filePath+"/AllSensors");
             ObjectInputStream ois = new ObjectInputStream(fis);
-            s = (Sensors) ois.readObject();
+            Sensors s = (Sensors) ois.readObject();
             ois.close();
-            //this.id = s.getId();
+
             this.firstTimestamp = s.firstTimestamp;
             this.lastTimestamp = s.lastTimestamp;
             this.filePath = s.filePath;

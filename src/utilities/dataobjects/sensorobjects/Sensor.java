@@ -21,8 +21,8 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
     protected int id;
     protected ArrayList<BaseSensor> instances = new ArrayList<>();
     protected String filePath;
-    protected Clusters clusters;
     protected DensityAffinityPropagation dap;
+
 
     public Sensor(int id){
         used = false;
@@ -73,21 +73,16 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
     public void buildClusters(){
         if(used) {
             Dataset db = new Dataset();
-            System.out.print("Sensor " + id + ": ");
             for (BaseSensor instance : instances) {
                 double sensorValue = instance.getValue();
-                //System.out.print(sensorValue+"("+instance.getTimestamp()+"), ");
-                System.out.print(sensorValue+", ");
                 Record record = new Record(new Double[]{sensorValue},0);
                 db.add(record);
             }
-            System.out.println();
             this.dap = new DensityAffinityPropagation();
-            //this.dap = new BaseAffinityPropagation();
             dap.setDataset(db);
             dap.run();
 
-            System.out.println("Sensor " + id + ", number of clusters of this sensor is "+dap.getClusters().getNumberOfCluster());
+            System.out.println("Sensor " + id + ", number of clusters of this sensor is " + dap.getClusters().getNumberOfCluster());
 
         }
         else{
@@ -96,7 +91,8 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
     }
 
     public Integer predict(double value){
-        return (Integer)dap.predict(new Double[]{value},0);
+        int result = (Integer)dap.predict(new Double[]{value},0);
+        return result;
     }
 
     public int getId(){
@@ -116,9 +112,8 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
     }
 
     public void save(){
-        FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(filePath+"/"+id);
+            FileOutputStream fos = new FileOutputStream(filePath+"/"+id);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(this);
             oos.flush();
@@ -131,14 +126,11 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
     }
 
     public void load(){
-        Sensor s;
-        FileInputStream fis = null;
         try {
-            fis = new FileInputStream(filePath+"/"+id);
+            FileInputStream fis = new FileInputStream(filePath+"/"+id);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            s = (Sensor) ois.readObject();
+            Sensor s = (Sensor) ois.readObject();
             ois.close();
-            //this.id = s.getId();
             this.filePath = s.getFilePath();
             this.instances = s.getInstances();
             dap.setClusters(s.getClusterList());

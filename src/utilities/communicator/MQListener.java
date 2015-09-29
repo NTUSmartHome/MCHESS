@@ -30,27 +30,26 @@ public class MQListener extends Thread{
 
     }
 
+    public MQListener(String topic){
+        this.consumer.setURL(urlAddress);
+        this.consumer.setTopic("ssh."+topic);
+        this.consumer.connect();
+        this.consumer.listen();
+    }
+
+
     public void run(){
-
         try {
-
             while(true){
                 if(this.consumer.isNewMsg()) {
 
-                    //System.out.flush();
                     FileWriter fw = new FileWriter("MQ_msg_log.txt", true);
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
                     msg_ = this.consumer.getMsg();
-
-                    //System.out.println(msg_);
-
-                    flag = true;
-
                     if (msg_ != null) {
-
+                        flag = true;
                         msg = new Message(msg_);
-
                         checkEndTrain();
                         fw.write(timestamp.toString() + "\r\n");
                         fw.write(msg_ + "\r\n");

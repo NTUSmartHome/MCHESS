@@ -35,7 +35,7 @@ public class BaseAffinityPropagation extends BaseMLCluster {
             this.parameters.add(insts.getIterator(),100);
         }
         if(!this.parameters.exist(insts.getModelName())) {
-            this.parameters.add(insts.getModelName(), filePath+"/tmpAPModel");
+            this.parameters.add(insts.getModelName(), filePath + "/tmpAPModel");
         }
     }
 
@@ -49,22 +49,24 @@ public class BaseAffinityPropagation extends BaseMLCluster {
     public Dataset run(){
         if(this.trainingData.getRecordNumber()<=3){
             clusters = new Clusters();
-            switch (this.trainingData.getRecordNumber()){
-                case 3:
-                    Cluster cluster3 = new Cluster(2);
-                    this.trainingData.get(2).setY(2);
-                    cluster3.add(this.trainingData.get(2));
-                    clusters.add(2, cluster3);
-                case 2:
-                    Cluster cluster2 = new Cluster(1);
-                    this.trainingData.get(1).setY(1);
-                    cluster2.add(this.trainingData.get(1));
-                    clusters.add(1, cluster2);
-                case 1:
-                    Cluster cluster1 = new Cluster(0);
-                    this.trainingData.get(0).setY(0);
-                    cluster1.add(this.trainingData.get(0));
-                    clusters.add(0, cluster1);
+            int[] rI = new int[this.trainingData.getRecordNumber()];
+
+            //sort clusters
+            if(this.trainingData.getRecordNumber() > 1) {
+                double[] rV = new double[this.trainingData.getRecordNumber()];
+                for (int i = 0; i < this.trainingData.getRecordNumber(); i++) {
+                    for (int j = 0; j < this.trainingData.get(i).getX().size(); j++) {
+                        rV[i] += (Double)this.trainingData.get(i).getX().get(j);
+                    }
+                }
+                rI = sort(rV);
+            }
+
+            for (int i = 0; i < this.trainingData.getRecordNumber(); i++) {
+                Cluster cluster = new Cluster(i);
+                cluster.add(this.trainingData.get(rI[i]));
+                clusters.add(i, cluster);
+                this.trainingData.get(rI[i]).setY(i);
             }
         }
         else {
@@ -115,11 +117,10 @@ public class BaseAffinityPropagation extends BaseMLCluster {
     }
 
     private void setClusters(Apro apro){
-        clusters = new Clusters();
+        Clusters clusters = new Clusters();
         Set<Integer> clusterHeadSet = apro.getExemplarSet();
         int[] exemplars = apro.getExemplars();
         int clusterId = 0;
-
         for(int exemplar: clusterHeadSet){
             Cluster cluster = new Cluster(clusterId);
             for(int i=0; i<exemplars.length; i++) {
@@ -130,6 +131,32 @@ public class BaseAffinityPropagation extends BaseMLCluster {
             }
             clusters.add(clusterId, cluster);
             clusterId++;
+        }
+
+        // sort clusters
+        double[] allDimensionSum = new double[clusters.getNumberOfCluster()];
+        for (int i = 0; i < allDimensionSum.length; i++) {
+            for (int j = 0; j < clusters.getCluster(i).getClusterCenter().getX().size(); j++) {
+                allDimensionSum[i] += (Double)clusters.getCluster(i).getClusterCenter().getX().get(j);
+            }
+            allDimensionSum[i] /= clusters.getCluster(i).getClusterCenter().getX().size();
+        }
+
+        int[] sortCluster = sort(allDimensionSum);
+
+        this.clusters = new Clusters();
+        for (int i = 0; i < sortCluster.length; i++) {
+            clusters.getCluster(sortCluster[i]).setClusterId(i);
+            this.clusters.add(i,clusters.getCluster(sortCluster[i]));
+        }
+
+        for(Integer rId: trainingData){
+            for (int i = 0; i < sortCluster.length; i++) {
+                if(trainingData.get(rId).getY().equals(sortCluster[i])){
+                    trainingData.get(rId).setY(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -180,12 +207,12 @@ public class BaseAffinityPropagation extends BaseMLCluster {
     }
 
     public void load(){
-        System.out.println("Load model "+(String) parameters.get(insts.getModelName()));
+        System.out.println("Load model " + (String) parameters.get(insts.getModelName()));
         clusters.load((String) parameters.get(insts.getModelName()));
     }
 
     public void load(String apName){
-        parameters.set(insts.getModelName(),filePath+"/"+apName);
+        parameters.set(insts.getModelName(), filePath + "/" + apName);
         clusters.load((String) parameters.get(insts.getModelName()));
     }
 
@@ -241,5 +268,31 @@ public class BaseAffinityPropagation extends BaseMLCluster {
         }
         Arrays.sort(iRelatedSimilarity);
         return  iRelatedSimilarity[0];
+    }
+
+    private double[] swap(double a, double b){
+        return new double[] {b,a};
+    }
+
+    private int[] swap(int a, int b){
+        return new int[] {b,a};
+    }
+
+    private int[] sort(double[] value){
+        int[] id = new int[value.length];
+        for (int i = 0; i < id.length; i++) {
+            id[i] = i;
+        }
+        for (int i = 0; i < id.length; i++) {
+            for (int j = i + 1; j < id.length; j++) {
+                if (value[i] > value[j]) {
+                    int[] tmpI = swap(id[i],id[j]);
+                    id[i] = tmpI[0]; id[j] = tmpI[1];
+                    double[] tmpV = swap(value[i],value[j]);
+                    value[i] = tmpV[0]; value[j] = tmpV[1];
+                }
+            }
+        }
+        return id;
     }
 }

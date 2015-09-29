@@ -59,7 +59,6 @@ public class BaseMLClassifier implements BaseMLModel {
 
     @Override
     public void setDataset(Dataset trainingData){
-        this.trainingData = new Dataset();
         this.trainingData = trainingData;
         this.classes.setClasses(trainingData);
     }

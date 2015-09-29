@@ -62,14 +62,15 @@ public class Record implements Serializable {
         return x;
     }
 
-    public void setY(Object y){
-        this.y = y;
-    }
-
+    public void setY(Object y){this.y = y;}
     public Object getY() {
         return y;
     }
 
+
+    public void setyPredicted(Object y){
+        this.yPredicted = y;
+    }
     public Object getYPredicted() {
         return yPredicted;
     }

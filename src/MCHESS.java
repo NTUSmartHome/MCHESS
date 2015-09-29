@@ -21,15 +21,20 @@ public class MCHESS extends Thread{
     DiscoverEnv discoverEnv = new DiscoverEnv();
     ERCIE ercie;
     public MCHESS(String option){
+        System.out.println("Start MCHESS");
+
         //Build MQ Listener
         mq = new MQListener();
         mq.start();
-
-        System.out.println("Start MCHESS");
+        System.out.println("MQ is opened");
 
         // Initialization
         if(option.equals("-run")){
             train = false;
+
+            ercie = new ERCIE();
+            ercie.loadARModel();
+            ercie.start();
         }
         else if(option.equals("-train")){
             train = true;
@@ -37,47 +42,27 @@ public class MCHESS extends Thread{
         else if(option.equals("-train_offline")){
             train_offline = true;
 
-        }
-
-        System.out.println("Start MCHESS");
-
-        //ERCIE
-        // run without training
-        if(train_offline) {
-
             loadMQOffline("MQ_msg_log_20150925_1025_allActs.txt");
-
             buildARModel();
         }
-        else if(!train){
-            ercie = new ERCIE();
-            //ercie.loadARModel();
-            ercie.loadARModelBaseline();
-            ercie.start();
-        }
-
 
     }
 
     public void run(){
-
         while(true){
             if(mq.checkNewMsg()){
                 Message msg = mq.getMsg();
-                //System.out.println(msg.getSubject());
                 if (msg.isSensorData()) {
                     if(train) {
-                        //if(!msg.isSensorModelEnd()){
                         if(mq.getFlagFroTrain()){
                             discoverEnv.add(msg);
                         }
                         else {
-                            discoverEnv.buildSensorModel();
                             buildARModel();
                         }
                     }
                     else {
-                        System.out.println(msg.getSubject()+":"+msg.getValue());
+                        System.out.println("\r\n"+msg.getSubject()+" "+msg.getId()+": "+msg.getValue());
                         ercie.newMsg(msg);
                     }
                 }
@@ -91,23 +76,19 @@ public class MCHESS extends Thread{
 
 
     private void loadMQOffline(String filename){
-        Sensors sensors = new Sensors();
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader br = new BufferedReader(fr);
-            String line = "";
+            String line;
 
             while((line = br.readLine())!= null){
                 Timestamp timestamp = Timestamp.valueOf(line);
                 line = br.readLine();
                 Message msg = new Message(line);
-                sensors.add(msg.getId(), msg.getValue(),timestamp);
+                discoverEnv.add(msg.getId(), msg.getValue(),timestamp);
             }
 
-            sensors.buildSensorsClusters();
-            sensors.buildDataset();
-            //sensors.printSensorDataset();
-            sensors.saveDataset();
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -118,6 +99,8 @@ public class MCHESS extends Thread{
     }
 
     private void buildARModel(){
+        System.out.println("Build sensor clusters...");
+        discoverEnv.buildSensorModel();
         System.out.println("Call ERCIE...");
         ercie = new ERCIE();
         System.out.println("Going to build AR Model...");
@@ -132,8 +115,8 @@ public class MCHESS extends Thread{
     public static void main(String[] args) {
 
         //Thread mchess = new MCHESS("-train");
-        //Thread mchess = new MCHESS("-train_offline");
-        Thread mchess = new MCHESS("-run");
+        Thread mchess = new MCHESS("-train_offline");
+        //Thread mchess = new MCHESS("-run");
         mchess.start();
     }
 }

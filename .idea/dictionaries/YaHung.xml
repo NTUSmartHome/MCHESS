@@ -2,8 +2,11 @@
   <dictionary name="YaHung">
     <words>
       <w>arff</w>
+      <w>atts</w>
       <w>dataset</w>
+      <w>ercie</w>
       <w>iters</w>
+      <w>weka</w>
     </words>
   </dictionary>
 </component>

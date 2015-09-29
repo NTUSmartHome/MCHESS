@@ -1,22 +1,12 @@
 package utilities.machinelearning.classifiers.BayesianNet;
 
-import utilities.dataobjects.Dataset;
 import utilities.dataobjects.Record;
 import utilities.machinelearning.baseobjects.BaseMLClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
-import weka.classifiers.bayes.net.BIFReader;
-import weka.classifiers.bayes.net.EditableBayesNet;
 import weka.core.*;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Created by YaHung on 2015/9/11.
- */
 public class BaseBayesNet extends BaseMLClassifier{
     protected Classifier bn;
     Instances instances;
@@ -42,11 +32,8 @@ public class BaseBayesNet extends BaseMLClassifier{
         if(!file.exists()) { file.mkdir();}
     }
 
-
-
     public Classifier run(){
         // weka instance
-        //FastVector atts ;
         // set class
         FastVector classVals = new FastVector(classes.getYList().size());
         for(Object classVal:classes.getYList()){
@@ -56,7 +43,7 @@ public class BaseBayesNet extends BaseMLClassifier{
         atts.addElement(class_);
 
         for(int dim=0; dim<trainingData.getNumDimension(); dim++) {
-            atts.addElement(new Attribute("a"+dim));
+            atts.addElement(new Attribute("a" + dim));
         }
 
         this.instances = new Instances("Dataset", atts, trainingData.getRecordNumber()+1);
@@ -71,20 +58,16 @@ public class BaseBayesNet extends BaseMLClassifier{
                 else {
                     instance.setValue((Attribute) atts.elementAt(dim), (Double) trainingData.get(i).getX().get(dim-1));
                 }
-                instance.setValue((Attribute) atts.elementAt(0), "c" + trainingData.get(i).getY());
+                instance.setValue((Attribute) atts.elementAt(0), "c"+ trainingData.get(i).getY());
             }
             this.instances.add(instance);
         }
-
         this.instances.setClassIndex(0);
 
         // build Naive BN
-        bn = (Classifier) new NaiveBayes();
-
         try {
+            bn = new NaiveBayes();
             bn.buildClassifier(this.instances);
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,26 +80,17 @@ public class BaseBayesNet extends BaseMLClassifier{
 
     public Record predict(Record instance){
         try {
-            /*double[] attValues = new double[instance.getX().size()+1];
-            System.out.println("number of attributes is "+attValues.length);
-
-            for (int i = 1; i < attValues.length; i++) {
-                attValues[i] = (Integer)instance.getX().get(i);
-            }
-*/
-
             Instance instance_ = new Instance(atts.size());
             for(int dim=1; dim<=instance.getX().size(); dim++) {
                 instance_.setValue((Attribute) atts.elementAt(dim), (double)(Integer) instance.getX().get(dim - 1));
             }
-            instance_.setValue((Attribute) atts.elementAt(0), "c" + instance.getY());
 
+            String defaultClass = "c"+this.classes.getY(0);
+
+            instance_.setValue((Attribute) atts.elementAt(0), defaultClass);
             instance_.setDataset(this.instances);
+            instance.setyPredicted(bn.classifyInstance(instance_));
 
-            instance.setY(bn.classifyInstance(instance_));
-
-
-            //instance.setY(bn.classifyInstance(new Instance(1.0D,attValues)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,21 +118,20 @@ public class BaseBayesNet extends BaseMLClassifier{
     }
 
     public void save(){
-        FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream((String) parameters.get(insts.getModelName()));
+            FileOutputStream fos = new FileOutputStream((String) parameters.get(insts.getModelName()));
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(bn);
             oos.flush();
             oos.close();
 
-            fos = new FileOutputStream((String) parameters.get(insts.getModelName())+"_instances");
+            fos = new FileOutputStream( parameters.get(insts.getModelName())+"_instances");
             oos = new ObjectOutputStream(fos);
             oos.writeObject(instances);
             oos.flush();
             oos.close();
 
-            fos = new FileOutputStream((String) parameters.get(insts.getModelName())+"_attributes");
+            fos = new FileOutputStream( parameters.get(insts.getModelName())+"_attributes");
             oos = new ObjectOutputStream(fos);
             oos.writeObject(atts);
             oos.flush();
@@ -172,21 +145,19 @@ public class BaseBayesNet extends BaseMLClassifier{
 
 
     public void load(){
-        FileInputStream fis = null;
         try {
             bn = new NaiveBayes();
-            fis = new FileInputStream((String) parameters.get(insts.getModelName()));
+            FileInputStream fis = new FileInputStream((String) parameters.get(insts.getModelName()));
             ObjectInputStream ois = new ObjectInputStream(fis);
             bn = (Classifier) ois.readObject();
             ois.close();
 
-            //this.instances; // = new Instances();
-            fis = new FileInputStream((String) parameters.get(insts.getModelName())+"_instances");
+            fis = new FileInputStream( parameters.get(insts.getModelName())+"_instances");
             ois = new ObjectInputStream(fis);
             this.instances = (Instances) ois.readObject();
             ois.close();
 
-            fis = new FileInputStream((String) parameters.get(insts.getModelName())+"_attributes");
+            fis = new FileInputStream( parameters.get(insts.getModelName())+"_attributes");
             ois = new ObjectInputStream(fis);
             this.atts = (FastVector) ois.readObject();
             ois.close();
@@ -198,7 +169,5 @@ public class BaseBayesNet extends BaseMLClassifier{
             e.printStackTrace();
         }
     }
-
-
 
 }

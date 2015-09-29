@@ -7,6 +7,7 @@ import utilities.dataobjects.sensorobjects.Sensors;
 import utilities.machinelearning.baseobjects.Cluster;
 import utilities.machinelearning.baseobjects.Clusters;
 import utilities.machinelearning.classifiers.BayesianNet.BaseBayesNet;
+import utilities.machinelearning.clusters.AffinityPropagation.BaseAffinityPropagation;
 import utilities.machinelearning.clusters.AffinityPropagation.DensityAffinityPropagation;
 
 import java.io.*;
@@ -38,46 +39,15 @@ public class ERCIE extends Thread{
     public void loadARModel(){
         this.loadActivityBayesNet();
     }
-    public void saveARModelBaseline(){
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream("aggregateNode");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(aggregateTrainingData);
-            oos.flush();
-            oos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }  catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public void loadARModelBaseline(){
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream("aggregateNode");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            aggregateTrainingData = (Dataset) ois.readObject();
-            ois.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public void buildARModel(){
         System.out.println("Load training data (sensor data)");
         this.loadTrainingData();
         System.out.println("Discover Activity by sensor context (affinity propagation)");
-        this.buildActivityClustersBaseline();
+        this.buildActivityClustersBaseline(0.05);
         //this.buildActivityClusters();
-        //System.out.println("Build Activity Recognition Model (BN)");
-        //this.buildActivityBayesNet();
-        this.saveARModelBaseline();
+        System.out.println("Build Activity Recognition Model (BN)");
+        this.buildActivityBayesNet();
     }
 
     public void run(){
@@ -100,7 +70,6 @@ public class ERCIE extends Thread{
                 // listen message from mq
                 if(flag){
                     Message newMsg = msg;
-                    System.out.print(newMsg.getSubject()+":"+newMsg.getValue()+", ");
                     Integer sensorResult = sensors.predict(newMsg.getId(), newMsg.getValue());
                     sensorValues.set(newMsg.getId(), sensorResult);
                     flag = false;
@@ -109,10 +78,10 @@ public class ERCIE extends Thread{
             }
 
             // predict instance
-            //instance = predict(instance);
-            instance = predictACBaseline(instance);
+            instance = predict(instance);
+
             System.out.println("Instance value is "+instance.getX());
-            System.out.println("Result is "+instance.getY()+"\r\n");
+            System.out.println("Result is "+instance.getYPredicted()+"\r\n");
 
             // set future 1 second timestamp
             cal = Calendar.getInstance();
@@ -128,12 +97,10 @@ public class ERCIE extends Thread{
     }
 
     public void loadTrainingData(){
-        Dataset db;
-        FileInputStream fis = null;
         try {
-            fis = new FileInputStream("util/dataobjects/sensorobjects/sensorsDataset");
+            FileInputStream fis = new FileInputStream("util/dataobjects/sensorobjects/sensorsDataset");
             ObjectInputStream ois = new ObjectInputStream(fis);
-            db = (Dataset) ois.readObject();
+            Dataset db = (Dataset) ois.readObject();
             ois.close();
             this.trainingData = db;
 
@@ -158,71 +125,54 @@ public class ERCIE extends Thread{
         for(Cluster cluster: ActClusters){
             System.out.println("Cluster id "+cluster.getClusterId());
             System.out.println("\t"+Arrays.toString(cluster.getNode(0).getX().toArray()));
-            System.out.println();
         }
     }
 
-    public void buildActivityClustersBaseline(){
+
+    public void buildActivityClustersBaseline(double ratio){
         //Aggregate Nodes
-        ArrayList<Integer> densityParameter = new ArrayList<>();
-         aggregateTrainingData = new Dataset();
-        // Find all nodes
-        for(Integer rId: trainingData){
-            boolean existNode = false;
-            for(int nId=0; nId<aggregateTrainingData.getRecordNumber(); nId++){
-                if(aggregateTrainingData.get(nId).equals(trainingData.get(rId))){
-                    densityParameter.set(nId, densityParameter.get(nId)+1);
-                    existNode = true;
-                    break;
-                }
-            }
-            if(!existNode) {
-                aggregateTrainingData.add(trainingData.get(rId));
-                densityParameter.add(1);
-            }
-        }
+        ArrayList<Double> nodeRatio = aggragateTrainingData();
+
         Clusters ActClusters = new Clusters();
-        for(Integer cId: aggregateTrainingData){
-            Cluster cluster = new Cluster(cId);
-            cluster.setClusterHeadId(0);
-            cluster.add(aggregateTrainingData.get(cId));
-            ActClusters.add(cId,cluster);
-        }
-
-        ArrayList<Integer> clusterId = new ArrayList<>();
-        for (int i = 0; i < aggregateTrainingData.getRecordNumber(); i++) {
-            clusterId.add(i);
-        }
-
-        for (Integer rId: trainingData){
-            Record r = trainingData.get(rId);
-            for(Integer cId: aggregateTrainingData){
-                Record c = aggregateTrainingData.get(cId);
-                boolean same = true;
-                for (int i = 0; i < trainingData.getNumDimension(); i++) {
-                    if(!r.getX().get(i).equals(c.getX().get(i))){
-                        same = false;
-                        break;
-                    }
-                }
-                if(same){
-                    trainingData.get(rId).setY(cId);
-                    break;
-                }
+        int cId = 0;
+        for(Integer rId: aggregateTrainingData){
+            if( nodeRatio.get(rId) > ratio){
+                Cluster cluster = new Cluster(cId);
+                cluster.setClusterHeadId(0);
+                cluster.add(aggregateTrainingData.get(rId));
+                ActClusters.add(cId,cluster);
+                cId ++;
             }
         }
 
-
+        // set clustering result for the dataset
+        for (Integer rId: trainingData){
+            trainingData.get(rId).setY(findNearestNeighbor(trainingData.get(rId),ActClusters));
+        }
 
         System.out.println();
         for(Cluster cluster: ActClusters){
             System.out.println("Cluster id "+cluster.getClusterId());
             System.out.println("\t"+Arrays.toString(cluster.getNode(0).getX().toArray()));
-            System.out.println();
         }
 
     }
 
+    private int findNearestNeighbor(Record r, Clusters clusters){
+        int minId = 0;
+        double minDistance = 10000000;
+        for(Cluster cluster: clusters){
+            double distance_ = 0;
+            for (int i = 0; i < cluster.getClusterHead().getX().size(); i++) {
+                distance_ += Math.abs((Integer)r.getX().get(i) - (Integer)cluster.getClusterHead().getX().get(i));
+            }
+            if(distance_<minDistance){
+                minId = cluster.getClusterId();
+                minDistance = distance_;
+            }
+        }
+        return minId;
+    }
 
     public void buildActivityBayesNet(){
         this.bn.setDataset(trainingData);
@@ -233,33 +183,33 @@ public class ERCIE extends Thread{
         this.bn.load();
     }
 
-    public void activityTable(){
-
-    }
-
     public Record predict(Record instance){
-        Record r = this.bn.predict(instance);
-        System.out.println("Result is "+r.getY());
-        return r;
+        return this.bn.predict(instance);
     }
 
-    public Record predictACBaseline(Record instance){
-        for(Integer cId: aggregateTrainingData){
-            Record c = aggregateTrainingData.get(cId);
-            boolean same = true;
-            for (int i = 0; i < aggregateTrainingData.getNumDimension(); i++) {
-                if(!instance.getX().get(i).equals(c.getX().get(i))){
-                    same = false;
+    private ArrayList<Double> aggragateTrainingData(){
+        ArrayList<Double> nodeRatio = new ArrayList<>();
+        aggregateTrainingData = new Dataset();
+        // Find all nodes
+        for(Integer rId: trainingData){
+            boolean existNode = false;
+            for(int nId=0; nId<aggregateTrainingData.getRecordNumber(); nId++){
+                if(aggregateTrainingData.get(nId).equals(trainingData.get(rId))){
+                    nodeRatio.set(nId, nodeRatio.get(nId)+1.0);
+                    existNode = true;
                     break;
                 }
             }
-            if(same){
-                System.out.println("Result is "+cId);
-                instance.setY(cId);
-                break;
+            if(!existNode) {
+                aggregateTrainingData.add(trainingData.get(rId));
+                nodeRatio.add(1.0);
             }
         }
-        return instance;
+        for (int i = 0; i < nodeRatio.size(); i++) {
+            nodeRatio.set(i, nodeRatio.get(i) / (double) trainingData.getRecordNumber());
+        }
+        return nodeRatio;
     }
+
 
 }
