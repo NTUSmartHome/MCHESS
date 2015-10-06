@@ -22,11 +22,30 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
     protected ArrayList<BaseSensor> instances = new ArrayList<>();
     protected String filePath;
     protected DensityAffinityPropagation dap;
-
+    protected int roomId;
+    protected int applianceId;
 
     public Sensor(int id){
         used = false;
         this.id = id;
+        this.roomId = -1;
+        this.applianceId = -1;
+        checkDirectory();
+    }
+
+    public Sensor(int id, int roomId){
+        used = false;
+        this.id = id;
+        this.roomId = roomId;
+        this.applianceId = -1;
+        checkDirectory();
+    }
+
+    public Sensor(int id, int roomId, int applianceId){
+        used = false;
+        this.id = id;
+        this.roomId = roomId;
+        this.applianceId = applianceId;
         checkDirectory();
     }
 
@@ -111,6 +130,10 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
         return dap.getClusters();
     }
 
+    public int getRoomId(){return roomId;}
+
+    public int getApplianceId(){return applianceId;}
+
     public void save(){
         try {
             FileOutputStream fos = new FileOutputStream(filePath+"/"+id);
@@ -133,7 +156,9 @@ public class Sensor implements Serializable, Iterable<BaseSensor> {
             ois.close();
             this.filePath = s.getFilePath();
             this.instances = s.getInstances();
-            dap.setClusters(s.getClusterList());
+            this.dap.setClusters(s.getClusterList());
+            this.roomId = s.getRoomId();
+            this.applianceId = s.applianceId;
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

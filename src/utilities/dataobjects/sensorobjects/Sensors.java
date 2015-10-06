@@ -1,7 +1,10 @@
 package utilities.dataobjects.sensorobjects;
 
+import com.sun.beans.util.Cache;
 import utilities.dataobjects.Dataset;
 import utilities.dataobjects.Record;
+import utilities.dataobjects.homeobjects.Appliances;
+import utilities.dataobjects.homeobjects.Rooms;
 
 import java.io.*;
 import java.sql.Timestamp;
@@ -49,7 +52,8 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
         }
         if( sId >= sensors.size()){
             while( sId >= sensors.size()){
-                Sensor sensor = new Sensor(sensors.size());
+                //Sensor sensor = new Sensor(sensors.size());
+                Sensor sensor = createSensor(sensors.size());
                 sensors.add(sensor);
             }
         }
@@ -63,11 +67,80 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
         }
         if( sId >= sensors.size()){
             while( sId >= sensors.size()){
-                Sensor sensor = new Sensor(sensors.size());
+                //Sensor sensor = new Sensor(sensors.size());
+                Sensor sensor = createSensor(sensors.size());
                 sensors.add(sensor);
             }
         }
         sensors.get(sId).add(value,timestamp);
+    }
+
+    private Sensor createSensor(int sId){
+        Sensor s;
+        Appliances appliances = new Appliances();
+        Rooms rooms = new Rooms();
+        rooms.load();
+        String livingroom = "Living room";
+        String hallway = "Hallway";
+        String studyroom = "Study room";
+        String kitchen = "Kitchen";
+        String bedroom = "Bedroom";
+        switch (sId){
+            case 1:
+                s = new Sensor(sId,rooms.get(livingroom),appliances.getlightId());
+                break;
+            case 2:
+                s = new Sensor(sId,rooms.get(hallway),appliances.getlightId());
+                break;
+            case 3:
+                s = new Sensor(sId,rooms.get(bedroom),appliances.getlightId());
+                break;
+            case 4:
+                s = new Sensor(sId,rooms.get(kitchen),appliances.getlightId());
+                break;
+            case 5:
+                s = new Sensor(sId,rooms.get(studyroom),appliances.getlightId());
+                break;
+            case 6:
+                s = new Sensor(sId,rooms.get(livingroom),appliances.getElectronicApplianceId());
+                break;
+            case 7:
+                s = new Sensor(sId,rooms.get(bedroom),appliances.getElectronicApplianceId());
+                break;
+            case 8:
+                s = new Sensor(sId,rooms.get(bedroom),appliances.getElectronicApplianceId());
+                break;
+            case 9:
+                s = new Sensor(sId,rooms.get(livingroom),appliances.getElectronicApplianceId());
+                break;
+            case 10:
+                s = new Sensor(sId,rooms.get(livingroom),appliances.getElectronicApplianceId());
+                break;
+            case 11:
+                s = new Sensor(sId,rooms.get(livingroom),appliances.getElectronicApplianceId());
+                break;
+            case 12:
+                s = new Sensor(sId,rooms.get(kitchen),appliances.getElectronicApplianceId());
+                break;
+            case 13:
+                s = new Sensor(sId,rooms.get(bedroom),appliances.getElectronicApplianceId());
+                break;
+            case 14:
+                s = new Sensor(sId,rooms.get(livingroom),appliances.getElectronicApplianceId());
+                break;
+            case 15:
+                s = new Sensor(sId,rooms.get(studyroom),appliances.getElectronicApplianceId());
+                break;
+            case 16:
+                s = new Sensor(sId,rooms.get(studyroom),appliances.getElectronicApplianceId());
+                break;
+            case 17:
+                s = new Sensor(sId,rooms.get(bedroom),appliances.getElectronicApplianceId());
+                break;
+            default:
+                s = new Sensor(sId);
+        }
+        return s;
     }
 
     public void buildSensorsClusters(){
@@ -95,7 +168,6 @@ public class Sensors implements Serializable, Iterable<Sensor>  {
                 } else{
                     x.add(0);
                 }
-
             }
 
             //sensorDataset.add(new Record(x,0));

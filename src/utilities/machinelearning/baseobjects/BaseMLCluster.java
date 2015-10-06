@@ -77,12 +77,12 @@ public class BaseMLCluster implements BaseMLModel{
     }
 
     @Override
-    public void save(String modelName) {
+    public void save() {
 
     }
 
     @Override
-    public void load(String modelName) {
+    public void load() {
 
     }
 }

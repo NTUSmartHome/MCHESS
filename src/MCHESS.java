@@ -2,7 +2,7 @@ import agent.DiscoverEnv;
 import ercie.ERCIE;
 import utilities.communicator.MQListener;
 import utilities.dataobjects.Message;
-import utilities.dataobjects.sensorobjects.Sensors;
+import utilities.dataobjects.homeobjects.Rooms;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -62,12 +62,15 @@ public class MCHESS extends Thread{
                         }
                     }
                     else {
-                        System.out.println("\r\n"+msg.getSubject()+" "+msg.getId()+": "+msg.getValue());
+                        //System.out.println("\r\n"+msg.getSubject()+" "+msg.getId()+": "+msg.getValue());
                         ercie.newMsg(msg);
                     }
                 }
                 else if(msg.isActivity()){
 
+                }
+                else if(msg.isLabelAct()){
+                    ercie.setActName(msg.getId(),msg.getActivityName());
                 }
                 mq.deleteMsg();
             }
@@ -87,8 +90,6 @@ public class MCHESS extends Thread{
                 Message msg = new Message(line);
                 discoverEnv.add(msg.getId(), msg.getValue(),timestamp);
             }
-
-
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -113,6 +114,13 @@ public class MCHESS extends Thread{
 
 
     public static void main(String[] args) {
+        Rooms rooms = new Rooms();
+        rooms.add("Living room");
+        rooms.add("Hallway");
+        rooms.add("Study room");
+        rooms.add("Kitchen");
+        rooms.add("Bedroom");
+        rooms.save();
 
         //Thread mchess = new MCHESS("-train");
         Thread mchess = new MCHESS("-train_offline");

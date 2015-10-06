@@ -18,7 +18,7 @@ interface BaseMLModel extends Serializable {
 
     Dataset validate(Dataset testingData);
 
-    void save(String modelName);
+    void save();
 
-    void load(String modelName);
+    void load();
 }

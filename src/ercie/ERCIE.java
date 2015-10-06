@@ -1,13 +1,16 @@
 package ercie;
 
+import sun.misc.MessageUtils;
+import utilities.JsonBuilder;
+import utilities.communicator.Producer;
 import utilities.dataobjects.Dataset;
 import utilities.dataobjects.Message;
 import utilities.dataobjects.Record;
 import utilities.dataobjects.sensorobjects.Sensors;
+import utilities.machinelearning.baseobjects.Classes;
 import utilities.machinelearning.baseobjects.Cluster;
 import utilities.machinelearning.baseobjects.Clusters;
 import utilities.machinelearning.classifiers.BayesianNet.BaseBayesNet;
-import utilities.machinelearning.clusters.AffinityPropagation.BaseAffinityPropagation;
 import utilities.machinelearning.clusters.AffinityPropagation.DensityAffinityPropagation;
 
 import java.io.*;
@@ -27,13 +30,17 @@ public class ERCIE extends Thread{
     Sensors sensors;
     Message msg;
     boolean flag = false;
-
+    boolean requestFlag = false;
     public ERCIE(){
         // Initialization
         this.trainingData = new Dataset();
         this.bn = new BaseBayesNet();
         this.sensors = new Sensors();
         this.sensors.load();
+
+        for (int i = 0; i < sensors.getNumberSensors(); i++) {
+            System.out.println("Sensor " + i + " in Room " + sensors.getSensor(i).getRoomId() + " and it is " + sensors.getSensor(i).getApplianceId());
+        }
     }
 
     public void loadARModel(){
@@ -51,7 +58,6 @@ public class ERCIE extends Thread{
     }
 
     public void run(){
-
         ArrayList<Integer> sensorValues = new ArrayList<>();
         for (int i = 0; i < sensors.getNumberSensors(); i++) {
             sensorValues.add(0);
@@ -62,6 +68,7 @@ public class ERCIE extends Thread{
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.add(Calendar.SECOND, 1);
         Timestamp goalTimestamp = new Timestamp(cal.getTime().getTime());
+
 
         while(true){
             Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
@@ -80,6 +87,18 @@ public class ERCIE extends Thread{
             // predict instance
             instance = predict(instance);
 
+            int result = (int)(double)(Double)instance.getYPredicted();
+            boolean clusterSetName = checkClusterName(result);
+
+            if(!clusterSetName && !requestFlag){
+
+                System.out.println("Predict cluster does not give name....");
+                System.out.println("cluster id is " + result);
+
+
+                requestLabelAct(result);
+            }
+
             System.out.println("Instance value is "+instance.getX());
             System.out.println("Result is "+instance.getYPredicted()+"\r\n");
 
@@ -89,6 +108,33 @@ public class ERCIE extends Thread{
             cal.add(Calendar.SECOND, 1);
             goalTimestamp = new Timestamp(cal.getTime().getTime());
         }
+    }
+
+    public void setActName(int cId, String name){
+        this.bn.getClasses().setName(cId,name);
+        this.bn.updateClasses();
+        getRequest();
+    }
+
+    protected void getRequest(){
+        requestFlag = false;
+    }
+
+    protected void requestLabelAct(int cId){
+        requestFlag = true;
+
+        Producer producer = new Producer();
+        producer.setURL("tcp://140.112.49.154:61616");
+        while(!producer.connect());
+        producer.getSendor();
+
+        JsonBuilder json = new JsonBuilder();
+        json.reset();
+        producer.sendOut(json.add("subject", "label_unkown").add("id", Integer.toString(cId)).toJson(),"ssh.RAW_DATA");
+    }
+
+    protected boolean checkClusterName(int y){
+        return this.bn.getClasses().checkName(y);
     }
 
     public void newMsg(Message msg){
@@ -210,6 +256,7 @@ public class ERCIE extends Thread{
         }
         return nodeRatio;
     }
+
 
 
 }

@@ -35,8 +35,9 @@ public class Record implements Serializable {
         this.y = y;
     }
 
+
     public Record(ArrayList<?> x, Object y, Object yPredicted, ArrayList<?> yPredictedProbabilities) {
-        this.x = (ArrayList<?>) x.clone();
+        this.x = (ArrayList<Object>) x.clone();
         this.y = y;
         this.yPredicted = yPredicted;
         if (yPredictedProbabilities != null) {
@@ -61,6 +62,21 @@ public class Record implements Serializable {
         }
         return x;
     }
+
+    public void setX(int dim, Object value){
+
+        ArrayList<Object> x = new ArrayList<>();
+        for (int i = 0; i < this.x.size(); i++) {
+            if(i!=dim){
+                x.add(this.getX(i));
+            }
+            else{
+                x.add(value);
+            }
+        }
+        this.x = x;
+    }
+
 
     public void setY(Object y){this.y = y;}
     public Object getY() {

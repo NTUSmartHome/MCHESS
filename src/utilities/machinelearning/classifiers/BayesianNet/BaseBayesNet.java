@@ -1,7 +1,9 @@
 package utilities.machinelearning.classifiers.BayesianNet;
 
+import utilities.dataobjects.Dataset;
 import utilities.dataobjects.Record;
 import utilities.machinelearning.baseobjects.BaseMLClassifier;
+import utilities.machinelearning.baseobjects.Classes;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.core.*;
@@ -15,8 +17,9 @@ public class BaseBayesNet extends BaseMLClassifier{
         super();
         checkDirector();
         parameters.set(insts.getModel(), "weka.classifiers.bayes.net.search.global.TAN");
-        this.parameters.add(insts.getModelName(), filePath + "/tmpAPModel");
+        this.parameters.add(insts.getModelName(), filePath + "/BNModel");
     }
+
     public BaseBayesNet(String parameters) {
         super(parameters);
         checkDirector();
@@ -33,6 +36,7 @@ public class BaseBayesNet extends BaseMLClassifier{
     }
 
     public Classifier run(){
+        classes.setClasses(trainingData);
         // weka instance
         // set class
         FastVector classVals = new FastVector(classes.getYList().size());
@@ -82,7 +86,10 @@ public class BaseBayesNet extends BaseMLClassifier{
         try {
             Instance instance_ = new Instance(atts.size());
             for(int dim=1; dim<=instance.getX().size(); dim++) {
-                instance_.setValue((Attribute) atts.elementAt(dim), (double)(Integer) instance.getX().get(dim - 1));
+                if(instance.getX().get(dim - 1) instanceof Double)
+                    instance_.setValue((Attribute) atts.elementAt(dim), (Double) instance.getX().get(dim - 1));
+                else if(instance.getX().get(dim - 1) instanceof Integer)
+                    instance_.setValue((Attribute) atts.elementAt(dim), (double)(Integer) instance.getX().get(dim - 1));
             }
 
             String defaultClass = "c"+this.classes.getY(0);
@@ -118,6 +125,7 @@ public class BaseBayesNet extends BaseMLClassifier{
     }
 
     public void save(){
+        super.save();
         try {
             FileOutputStream fos = new FileOutputStream((String) parameters.get(insts.getModelName()));
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -136,6 +144,7 @@ public class BaseBayesNet extends BaseMLClassifier{
             oos.writeObject(atts);
             oos.flush();
             oos.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }  catch (IOException e) {
@@ -145,6 +154,7 @@ public class BaseBayesNet extends BaseMLClassifier{
 
 
     public void load(){
+        super.load();
         try {
             bn = new NaiveBayes();
             FileInputStream fis = new FileInputStream((String) parameters.get(insts.getModelName()));
@@ -161,6 +171,7 @@ public class BaseBayesNet extends BaseMLClassifier{
             ois = new ObjectInputStream(fis);
             this.atts = (FastVector) ois.readObject();
             ois.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -1,9 +1,11 @@
 package utilities.machinelearning.clusters.AffinityPropagation;
 
 import utilities.dataobjects.Dataset;
+import utilities.dataobjects.Record;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by YaHung on 2015/9/10.
@@ -16,7 +18,7 @@ public class DensityAffinityPropagation extends BaseAffinityPropagation {
         checkDirector();
         // -k 0:median, 1:minimum
         this.parameters.add(insts.getKernal(), 0);
-        this.parameters.set(insts.getModelName(),filePath+"/tmpAPModel");
+        this.parameters.set(insts.getModelName(),filePath+"/DAPModel");
     }
 
     public DensityAffinityPropagation(String parameters) {
@@ -62,6 +64,8 @@ public class DensityAffinityPropagation extends BaseAffinityPropagation {
         }
         trainingData.clear();
         trainingData = aggregateTrainingData;
+
+        //normalizeTrainingdata();
     }
 
     private void setSelfSuitability(){
@@ -95,6 +99,19 @@ public class DensityAffinityPropagation extends BaseAffinityPropagation {
         }
         // set self suitability
         setSelfSuitability();
+    }
+
+    public void normalizeTrainingdata(){
+        for (int i = 0; i < trainingData.getNumDimension(); i++) {
+            double max = 0;
+            for (int j = 0; j < trainingData.getRecordNumber(); j++)
+                if( (Double)trainingData.get(j).getX(i) > max)
+                    max = (Double)trainingData.get(j).getX(i);
+            for (int j = 0; j < trainingData.getRecordNumber(); j++) {
+                if(max!=0)
+                    trainingData.get(j).setX(i, ((Double) trainingData.get(j).getX(i) / max) * 100);
+            }
+        }
     }
 
 

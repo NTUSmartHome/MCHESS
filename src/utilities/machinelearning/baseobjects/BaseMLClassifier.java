@@ -3,7 +3,7 @@ package utilities.machinelearning.baseobjects;
 import utilities.dataobjects.Dataset;
 import utilities.dataobjects.Record;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -28,6 +28,10 @@ public class BaseMLClassifier implements BaseMLModel {
         insts = new BaseInstractors();
         classes = new Classes();
         checkDirectory();
+    }
+
+    public Classes getClasses(){
+        return classes;
     }
 
     private void checkDirectory(){
@@ -79,12 +83,59 @@ public class BaseMLClassifier implements BaseMLModel {
     }
 
     @Override
-    public void save(String modelName) {
+    public void save() {
+        try {
+            FileOutputStream fos = new FileOutputStream( parameters.get(insts.getModelName())+"_dataset");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(trainingData);
+            oos.flush();
+            oos.close();
 
+            fos = new FileOutputStream( parameters.get(insts.getModelName())+"_classes");
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(classes);
+            oos.flush();
+            oos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void load(String modelName) {
+    public void load() {
+        try {
 
+            FileInputStream fis = new FileInputStream( parameters.get(insts.getModelName())+"_dataset");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            this.trainingData = (Dataset) ois.readObject();
+            ois.close();
+
+            fis = new FileInputStream( parameters.get(insts.getModelName())+"_classes");
+            ois = new ObjectInputStream(fis);
+            this.classes = (Classes) ois.readObject();
+            ois.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateClasses() {
+        try {
+            FileOutputStream fos = new FileOutputStream( parameters.get(insts.getModelName())+"_classes");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(classes);
+            oos.flush();
+            oos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

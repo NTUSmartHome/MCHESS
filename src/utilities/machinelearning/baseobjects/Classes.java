@@ -2,15 +2,20 @@ package utilities.machinelearning.baseobjects;
 
 import utilities.dataobjects.Dataset;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by YaHung on 2015/9/11.
  */
-public class Classes {
-    public ArrayList<Object> yList;
+public class Classes implements Serializable {
+    protected ArrayList<Object> yList;
+    protected ArrayList<String> yNameList;
+    protected ArrayList<Boolean> setName;
     public Classes(){
-        yList = new ArrayList<>();
+        this.yList = new ArrayList<>();
+        this.setName = new ArrayList<>();
+        this.yNameList = new ArrayList<>();
     }
 
     public int getNumClasses(){ return yList.size();}
@@ -29,7 +34,19 @@ public class Classes {
                 this.yList.add(rY);
             }
         }
+        for (int i = 0; i < this.yList.size(); i++) {
+            setName.add(false);
+            yNameList.add("");
+        }
     }
+
+    public void setName(int cId, String name){
+        System.out.println("Set class "+cId+" name "+name);
+        this.yNameList.set(cId, name);
+        this.setName.set(cId,true);
+    }
+    public String getName(int cId){ return this.yNameList.get(cId);}
+    public boolean checkName(int cId){ return this.setName.get(cId);}
 
     public ArrayList<Object> getYList(){ return yList;}
 

@@ -8,7 +8,7 @@ public class Message {
     int id;
     double value;
     String activityName;
-    String note;
+    String type;
 
     public Message(String msg){
         // initialization
@@ -16,8 +16,7 @@ public class Message {
         id = 0;
         value = 0.0;
         activityName = "non";
-        note = "non";
-
+        type = "non";
         For313Process(msg);
     }
 
@@ -82,11 +81,14 @@ public class Message {
                     case 16: id = 28;break;
                     case 15: id = 29;break;
                     default: id =0;  break;
-
                 }
             }
             else if (subject.contains("end")){
 
+            }
+            else if(subject.equals("label_set")){
+                activityName = jsonObject.getString("value");
+                id = jsonObject.getInt("id");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -100,11 +102,14 @@ public class Message {
             if(subject.equals("sensor")){
                 id = jsonObject.getInt("id");
                 value = jsonObject.getDouble("value");
-                note = jsonObject.getString("note");
             }
             else if(subject.equals("activity"))
             {
-                activityName = jsonObject.getString("activityName");
+                activityName = jsonObject.getString("value");
+            }
+            else if(subject.equals("label_set")){
+                activityName = jsonObject.getString("value");
+                id = jsonObject.getInt("id");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -125,6 +130,13 @@ public class Message {
 
     public boolean isSensorModelEnd(){
         if(subject.equals("training_end")){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isLabelAct(){
+        if(subject.equals("label_set")){
             return true;
         }
         return false;

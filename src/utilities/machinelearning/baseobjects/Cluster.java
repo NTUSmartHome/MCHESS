@@ -11,14 +11,15 @@ import java.util.*;
  */
 public class Cluster implements Serializable,Iterable<Record>{
     protected Integer clusterId;
-    protected ArrayList<Integer> recordIdSet;
     protected Dataset clusterDataset;
-    protected Object labelY;
     protected Integer clusterHeadId;
+    protected boolean setName;
+    protected String name;
 
     public Cluster(Integer clusterId) {
+        this.setName = false;
+        this.name = "";
         this.clusterId = clusterId;
-        recordIdSet = new ArrayList<>();
         clusterDataset = new Dataset();
     }
 
@@ -41,13 +42,14 @@ public class Cluster implements Serializable,Iterable<Record>{
     public Dataset getClusterDataset(){
         return clusterDataset;
     }
-    public Object getLabelY() {
-        return labelY;
-    }
     public int getNumberRecord(){ return clusterDataset.getRecordNumber();}
-    protected void setLabelY(Object labelY) {
-        this.labelY = labelY;
+    public void setName(String name){
+        this.name = name;
+        this.setName = true;
     }
+    public String getName(){ return this.name;}
+    public boolean checkName(){ return setName;}
+
 
     public Record getClusterCenter(){
         ArrayList<Double> x = new ArrayList<>();
