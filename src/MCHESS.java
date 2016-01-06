@@ -6,11 +6,16 @@ import utilities.dataobjects.Message;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.io.IOException;
+import java.io.FileWriter;
+import java.sql.Timestamp;
+import java.util.Date;
+
 
 /**
  * Created by YaHung on 2015/9/8.
  */
-public class MCHESS extends Thread{
+public class MCHESS extends Thread {
 
     //people
     int livingP = 1;
@@ -42,9 +47,13 @@ public class MCHESS extends Thread{
     int lightS = 0;
     int lightH = 0;
 
+
+    boolean firstAct = false;
     boolean checkGoOut = false;
+    FileWriter pw;
 
     MQListener mq;
+
     public MCHESS(String option){
         System.out.println("Start MCHESS");
         //Build MQ Listener
@@ -57,6 +66,15 @@ public class MCHESS extends Thread{
 
 
     public void run(){
+        //Open File
+        Timestamp timestamps =new Timestamp(System.currentTimeMillis());
+        String fileName = timestamps.toString();
+        try {
+            pw = new FileWriter(fileName, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         while(true){
             if(mq.checkNewMsg()){
                 Message msg = mq.getMsg();
@@ -150,7 +168,31 @@ public class MCHESS extends Thread{
                         }
                     }
                 }
+                if(firstAct){
+                    timestamps =new Timestamp(System.currentTimeMillis());
+                    int nightlampInt = boolToInt(nightlamp);
+                    int tvInt = boolToInt(tv);
+                    int xboxInt = boolToInt(xbox);
+                    int pcInt = boolToInt(pc);
+                    int livinglampInt = boolToInt(livinglamp);
+                    //livingP+bedP+StudyP+KitchenP+totalP+nightlamp+tv+xbox+pc+livinglamp+lightC+lightR+LightB+LightK+LightS
+                    String data = String.valueOf(livingP) + "\t" + String.valueOf(bedP) + "\t" + String.valueOf(studyP) + "\t" + String.valueOf(kitchenP) + "\t"
+                            + String.valueOf(totalP) + "\t" + String.valueOf(nightlampInt) + "\t"+ String.valueOf(tvInt) + "\t" + String.valueOf(xboxInt) + "\t"
+                            + String.valueOf(pcInt) + "\t"+ String.valueOf(livinglampInt) + "\n";
+                    String output = timestamps.toString() + "\t" + data;
+                    try {
+                        pw.append(output);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        pw.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if(checkAct2()){
+                    firstAct = true;
                     try {
                         // System.out.println(System.currentTimeMillis());
                         sleep(500);
