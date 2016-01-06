@@ -7,6 +7,34 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="module" module-name="SHSystem" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/activemq-all-5.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/activemq-all-5.8.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/apro-1.0.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/colt.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jmatio-apro-mod.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jna.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/json.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jFuzzyLogic_v2.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/jFuzzyLogic_v2.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jFuzzyLogic_v2.1.jar!/fcl/output" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../SHSystem/lib/weka.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

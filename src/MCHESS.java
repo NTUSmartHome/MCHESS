@@ -11,12 +11,15 @@ import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static java.lang.String.valueOf;
+
+import com.company.*;
 
 /**
  * Created by YaHung on 2015/9/8.
  */
 public class MCHESS extends Thread {
-
+    SHSystem sh = new SHSystem();
     //people
     int livingP = 1;
     int bedP = 1;
@@ -78,6 +81,8 @@ public class MCHESS extends Thread {
         while(true){
             if(mq.checkNewMsg()){
                 Message msg = mq.getMsg();
+                if(sh.isRecognize())
+                    sh.recongnize(passData());
                 if (msg.isSensorData()) {
                     if (msg.getSubject().equals("people")) {
                         if (msg.getId() == 1 ) {
@@ -169,16 +174,15 @@ public class MCHESS extends Thread {
                     }
                 }
                 if(firstAct){
-                    timestamps =new Timestamp(System.currentTimeMillis());
+                    timestamps = new Timestamp(System.currentTimeMillis());
                     int nightlampInt = boolToInt(nightlamp);
                     int tvInt = boolToInt(tv);
                     int xboxInt = boolToInt(xbox);
                     int pcInt = boolToInt(pc);
                     int livinglampInt = boolToInt(livinglamp);
                     //livingP+bedP+StudyP+KitchenP+totalP+nightlamp+tv+xbox+pc+livinglamp+lightC+lightR+LightB+LightK+LightS
-                    String data = String.valueOf(livingP) + "\t" + String.valueOf(bedP) + "\t" + String.valueOf(studyP) + "\t" + String.valueOf(kitchenP) + "\t"
-                            + String.valueOf(totalP) + "\t" + String.valueOf(nightlampInt) + "\t"+ String.valueOf(tvInt) + "\t" + String.valueOf(xboxInt) + "\t"
-                            + String.valueOf(pcInt) + "\t"+ String.valueOf(livinglampInt) + "\n";
+                    String data = valueOf(livingP) + "\t" + valueOf(bedP) + "\t" + valueOf(studyP) + "\t" + valueOf(kitchenP) + "\t" + valueOf(nightlampInt) + "\t"+ valueOf(tvInt) + "\t" + valueOf(xboxInt) + "\t"
+                            + valueOf(pcInt) + "\t"+ valueOf(livinglampInt) + "\n";
                     String output = timestamps.toString() + "\t" + data;
                     try {
                         pw.append(output);
@@ -208,6 +212,7 @@ public class MCHESS extends Thread {
     }
 
     public void checkControl(){
+        passData();
         if(sleep){
             forSleep();
         }
@@ -748,8 +753,9 @@ public class MCHESS extends Thread {
     }
 
     public String passData(){
-        boolean RecognizeButton = true;
-        if( RecognizeButton == true){
+        System.out.println("In");
+        return "21.11 64.12 174.3 22.01 56.73 29.4 21.62 60.26 72 24.01 51.71 17.2 23.91 56.92 30 on_99_0 off standby on off off standby on off off standby off off off standby standby off off off standby off off off off";
+        /*if(sh.isRecognize()){
             int nightlampInt = boolToInt(nightlamp);
             int tvInt = boolToInt(tv);
             int xboxInt = boolToInt(xbox);
@@ -757,13 +763,14 @@ public class MCHESS extends Thread {
             int livinglampInt = boolToInt(livinglamp);
 
             //livingP+bedP+StudyP+KitchenP+totalP+nightlamp+tv+xbox+pc+livinglamp+lightC+lightR+LightB+LightK+LightS
-            String data = String.valueOf(livingP) + " " + String.valueOf(bedP) + " " + String.valueOf(studyP) + " " + String.valueOf(kitchenP) + " "
-                    + String.valueOf(totalP) + " " + String.valueOf(nightlampInt) + " "+ String.valueOf(tvInt) + " " + String.valueOf(xboxInt) + " "
-                    + String.valueOf(pcInt) + " "+ String.valueOf(livinglampInt) + "\n";
-            return data;
+            return valueOf(livingP) + " " + valueOf(bedP) + " " + valueOf(studyP) + " " + valueOf(kitchenP) + " "
+                    + valueOf(totalP) + " " + valueOf(nightlampInt) + " "+ valueOf(tvInt) + " " + valueOf(xboxInt) + " "
+                    + valueOf(pcInt) + " "+ valueOf(livinglampInt) + "\n";
         }
         else
-            return null;
+            return null;*/
+
+
     }
 
     public static void main(String[] args) {

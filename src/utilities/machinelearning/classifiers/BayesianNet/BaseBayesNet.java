@@ -54,7 +54,7 @@ public class BaseBayesNet extends BaseMLClassifier{
 
         // set features
         for(int i=0; i<trainingData.getRecordNumber(); i++){
-            Instance instance = new Instance(atts.size());
+            Instance instance = new DenseInstance(atts.size());
             for(int dim=1; dim<=trainingData.getNumDimension(); dim++) {
                 if(trainingData.get(i).getX().get(dim-1) instanceof  Integer){
                     instance.setValue((Attribute) atts.elementAt(dim), (double) (Integer) trainingData.get(i).getX().get(dim-1));
@@ -84,7 +84,7 @@ public class BaseBayesNet extends BaseMLClassifier{
 
     public Record predict(Record instance){
         try {
-            Instance instance_ = new Instance(atts.size());
+            Instance instance_ = new DenseInstance(atts.size());
             for(int dim=1; dim<=instance.getX().size(); dim++) {
                 if(instance.getX().get(dim - 1) instanceof Double)
                     instance_.setValue((Attribute) atts.elementAt(dim), (Double) instance.getX().get(dim - 1));
