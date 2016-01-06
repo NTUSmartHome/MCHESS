@@ -101,18 +101,7 @@ public class DensityAffinityPropagation extends BaseAffinityPropagation {
         setSelfSuitability();
     }
 
-    public void normalizeTrainingdata(){
-        for (int i = 0; i < trainingData.getNumDimension(); i++) {
-            double max = 0;
-            for (int j = 0; j < trainingData.getRecordNumber(); j++)
-                if( (Double)trainingData.get(j).getX(i) > max)
-                    max = (Double)trainingData.get(j).getX(i);
-            for (int j = 0; j < trainingData.getRecordNumber(); j++) {
-                if(max!=0)
-                    trainingData.get(j).setX(i, ((Double) trainingData.get(j).getX(i) / max) * 100);
-            }
-        }
-    }
+
 
 
 }

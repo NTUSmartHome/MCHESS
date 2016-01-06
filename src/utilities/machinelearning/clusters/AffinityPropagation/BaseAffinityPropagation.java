@@ -47,6 +47,9 @@ public class BaseAffinityPropagation extends BaseMLCluster {
 
 
     public Dataset run(){
+
+        normalizeTrainingdata();
+
         if(this.trainingData.getRecordNumber()<=3){
             clusters = new Clusters();
             int[] rI = new int[this.trainingData.getRecordNumber()];
@@ -294,5 +297,18 @@ public class BaseAffinityPropagation extends BaseMLCluster {
             }
         }
         return id;
+    }
+
+    public void normalizeTrainingdata(){
+        for (int i = 0; i < trainingData.getNumDimension(); i++) {
+            double max = 0;
+            for (int j = 0; j < trainingData.getRecordNumber(); j++)
+                if( (Double)trainingData.get(j).getX(i) > max)
+                    max = (Double)trainingData.get(j).getX(i);
+            for (int j = 0; j < trainingData.getRecordNumber(); j++) {
+                if(max!=0)
+                    trainingData.get(j).setX(i, ((Double) trainingData.get(j).getX(i) / max) * 100);
+            }
+        }
     }
 }

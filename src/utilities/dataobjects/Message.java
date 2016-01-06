@@ -24,6 +24,61 @@ public class Message {
         try {
             JSONObject jsonObject = new JSONObject(msg);
             subject = jsonObject.getString("subject");
+            if(subject.equals("light")){
+                id = jsonObject.getInt("id");
+                value = jsonObject.getDouble("level");
+            }
+            else if (subject.equals("socketmeter")){
+                id = jsonObject.getInt("id");
+                value = jsonObject.getDouble("ampere");
+                switch (id){
+                    case 7:  id = 7; break;
+                    case 9: id = 9; break;
+                    case 16: id = 8;break;
+                    case 5: id = 10; break;
+                    case 8: id = 11; break;
+                    default:
+                        id =0;
+                        subject = "no";
+                        break;
+                }
+            }
+            else if (subject.equals("people")) {
+                id = jsonObject.getInt("id");
+                value = jsonObject.getDouble("value");
+                /*
+                switch (id){
+                    case 3:  id = 10; break;
+                    case 1: id = 11; break;
+                    case 5: id = 12;break;
+                    case 4: id = 13;break;
+                    case 2: id = 14;break;
+                    default:
+                        id =0;
+                        subject = "no";
+                        break;
+                }
+                */
+            }
+            else if (subject.contains("end")){
+
+            }
+            else if(subject.equals("label_set")){
+                activityName = jsonObject.getString("value");
+                id = jsonObject.getInt("id");
+            }
+            else{
+                subject = "no";
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void For313Process_original(String msg){
+        try {
+            JSONObject jsonObject = new JSONObject(msg);
+            subject = jsonObject.getString("subject");
             if(subject.equals("comfort_sensor")){
                 id = jsonObject.getInt("id");
                 value = jsonObject.getDouble("lux");
@@ -122,7 +177,7 @@ public class Message {
     public String getActivityName(){return activityName;}
 
     public boolean isSensorData(){
-        if(subject.equals("comfort_sensor")||subject.equals("socketmeter")){
+        if(subject.equals("light")||subject.equals("people")||subject.equals("socketmeter")){
             return true;
         }
         return false;

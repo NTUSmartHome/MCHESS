@@ -11,6 +11,7 @@ import utilities.machinelearning.baseobjects.Classes;
 import utilities.machinelearning.baseobjects.Cluster;
 import utilities.machinelearning.baseobjects.Clusters;
 import utilities.machinelearning.classifiers.BayesianNet.BaseBayesNet;
+import utilities.machinelearning.clusters.AffinityPropagation.BaseAffinityPropagation;
 import utilities.machinelearning.clusters.AffinityPropagation.DensityAffinityPropagation;
 
 import java.io.*;
@@ -51,8 +52,8 @@ public class ERCIE extends Thread{
         System.out.println("Load training data (sensor data)");
         this.loadTrainingData();
         System.out.println("Discover Activity by sensor context (affinity propagation)");
-        this.buildActivityClustersBaseline(0.05);
-        //this.buildActivityClusters();
+        //this.buildActivityClustersBaseline(0.05);
+        this.buildActivityClusters();
         System.out.println("Build Activity Recognition Model (BN)");
         this.buildActivityBayesNet();
     }
@@ -160,7 +161,8 @@ public class ERCIE extends Thread{
     }
 
     public void buildActivityClusters(){
-        DensityAffinityPropagation dap = new DensityAffinityPropagation();
+        //DensityAffinityPropagation dap = new DensityAffinityPropagation();
+        BaseAffinityPropagation dap = new BaseAffinityPropagation();
         dap.setDataset(trainingData);
         trainingData = dap.run();
 
