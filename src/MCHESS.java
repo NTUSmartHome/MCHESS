@@ -82,7 +82,7 @@ public class MCHESS extends Thread {
             if(mq.checkNewMsg()){
                 Message msg = mq.getMsg();
                 if(sh.isRecognize())
-                    sh.recongnize(passData());
+                    sh.recognize(passData());
                 if (msg.isSensorData()) {
                     if (msg.getSubject().equals("people")) {
                         if (msg.getId() == 1 ) {
@@ -754,7 +754,7 @@ public class MCHESS extends Thread {
 
     public String passData(){
         System.out.println("In");
-        return "21.11 64.12 174.3 22.01 56.73 29.4 21.62 60.26 72 24.01 51.71 17.2 23.91 56.92 30 on_99_0 off standby on off off standby on off off standby off off off standby standby off off off standby off off off off";
+        return "1 0 0 0 0 1 0 0 0";
         /*if(sh.isRecognize()){
             int nightlampInt = boolToInt(nightlamp);
             int tvInt = boolToInt(tv);
