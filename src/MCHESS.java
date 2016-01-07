@@ -5,6 +5,7 @@ import utilities.communicator.Producer;
 import utilities.dataobjects.Message;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -50,6 +51,8 @@ public class MCHESS extends Thread {
     int lightS = 0;
     int lightH = 0;
 
+    double[] message = new double[9];
+
 
     boolean firstAct = false;
     boolean checkGoOut = false;
@@ -77,6 +80,7 @@ public class MCHESS extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        for(int i=0;i<9;i++) message[i] = 0.0;
 
         while(true){
             if(mq.checkNewMsg()){
@@ -89,25 +93,30 @@ public class MCHESS extends Thread {
                             //System.out.println("living room people is "+msg.getId());
                             //System.out.println("L:["+livingP+']');
                             livingP = (int)msg.getValue();
+                            message[0] = livingP;
                             //System.out.println("L:"+livingP);
                         }
                         else if (msg.getId() == 5 ) {
                             //System.out.println("B:["+bedP+']');
                             bedP = (int)msg.getValue();
+                            message[1] = bedP;
                             //System.out.println("B:"+bedP);
                         }
                         else if (msg.getId() == 4 ) {
 
                             kitchenP = (int)msg.getValue();
+                            message[3] = kitchenP;
                         }
                         else if (msg.getId() == 2 ) {
                             //System.out.println("S:["+studyP+']');
                             studyP = (int)msg.getValue();
+                            message[2] = studyP;
                             //System.out.println("S:"+studyP);
                         }
                     }
                     if (msg.getSubject().equals("socketmeter")) {
                         if (msg.getId() == 8 ) {
+                            message[4] = msg.getValue();
                             //System.out.println("Night Lamp ampere is "+msg.getValue());
                             if(msg.getValue() > 0.05){
                                 nightlamp = true;
@@ -117,6 +126,7 @@ public class MCHESS extends Thread {
                             }
                         }
                         else if (msg.getId() == 9 ) {
+                            message[6] = msg.getValue();
                             //System.out.println("XBOX ampere is "+msg.getValue());
                             if(msg.getValue() > 0.7){
 
@@ -127,6 +137,7 @@ public class MCHESS extends Thread {
                             }
                         }
                         else if (msg.getId() == 7 ) {
+                            message[5] = msg.getValue();
                             //System.out.println("TV ampere is "+msg.getValue());
                             if(msg.getValue() > 0.3){
                                 tv = true;
@@ -136,6 +147,7 @@ public class MCHESS extends Thread {
                             }
                         }
                         else if(msg.getId() == 10){
+                            message[7] = msg.getValue();
                             // pc
                             if(msg.getValue() > 0.5){
                                 pc = true;
@@ -146,6 +158,7 @@ public class MCHESS extends Thread {
                         }
                         else if(msg.getId() == 11){
                             //Living Lamp
+                            message[8] = msg.getValue();
                             if(msg.getValue() > 0.1){
                                 livinglamp = true;
                             }else{
@@ -174,13 +187,14 @@ public class MCHESS extends Thread {
                     }
                 }
                 if(firstAct){
+                    sh.setMessage(viewData());
                     timestamps = new Timestamp(System.currentTimeMillis());
                     int nightlampInt = boolToInt(nightlamp);
                     int tvInt = boolToInt(tv);
                     int xboxInt = boolToInt(xbox);
                     int pcInt = boolToInt(pc);
                     int livinglampInt = boolToInt(livinglamp);
-                    //livingP+bedP+StudyP+KitchenP+totalP+nightlamp+tv+xbox+pc+livinglamp+lightC+lightR+LightB+LightK+LightS
+                    //livingP+bedP+StudyP+KitchenP+nightlamp+tv+xbox+pc+livinglamp
                     String data = valueOf(livingP) + "\t" + valueOf(bedP) + "\t" + valueOf(studyP) + "\t" + valueOf(kitchenP) + "\t" + valueOf(nightlampInt) + "\t"+ valueOf(tvInt) + "\t" + valueOf(xboxInt) + "\t"
                             + valueOf(pcInt) + "\t"+ valueOf(livinglampInt) + "\n";
                     String output = timestamps.toString() + "\t" + data;
@@ -769,8 +783,11 @@ public class MCHESS extends Thread {
         }
         else
             return null;*/
+    }
 
-
+    public String viewData(){
+        Timestamp ts =new Timestamp(System.currentTimeMillis());
+        return "Time:" + valueOf(ts) + "\t" + "Data:" + Arrays.toString(message) + "\n";
     }
 
     public static void main(String[] args) {
