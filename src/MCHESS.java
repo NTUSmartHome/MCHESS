@@ -187,7 +187,9 @@ public class MCHESS extends Thread {
                     }
                 }
                 if(firstAct){
-                    sh.setMessage(viewData());
+                    if(sh.isCollect()) {
+                        sh.setMessage(viewData());
+                    }
                     timestamps = new Timestamp(System.currentTimeMillis());
                     int nightlampInt = boolToInt(nightlamp);
                     int tvInt = boolToInt(tv);
