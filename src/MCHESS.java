@@ -83,6 +83,9 @@ public class MCHESS extends Thread {
         for(int i=0;i<9;i++) message[i] = 0.0;
 
         while(true){
+            if(sh.isCollect()) {
+                sh.setMessage(viewData());
+            }
             if(mq.checkNewMsg()){
                 Message msg = mq.getMsg();
                 if(sh.isRecognize())
@@ -769,9 +772,10 @@ public class MCHESS extends Thread {
     }
 
     public String passData(){
-        System.out.println("In");
+        //System.out.println("In");
         return "1 0 0 0 0 1 0 0 0";
-        /*if(sh.isRecognize()){
+       /*
+        if(sh.isRecognize()){
             int nightlampInt = boolToInt(nightlamp);
             int tvInt = boolToInt(tv);
             int xboxInt = boolToInt(xbox);
@@ -779,17 +783,19 @@ public class MCHESS extends Thread {
             int livinglampInt = boolToInt(livinglamp);
 
             //livingP+bedP+StudyP+KitchenP+totalP+nightlamp+tv+xbox+pc+livinglamp+lightC+lightR+LightB+LightK+LightS
-            return valueOf(livingP) + " " + valueOf(bedP) + " " + valueOf(studyP) + " " + valueOf(kitchenP) + " "
-                    + valueOf(totalP) + " " + valueOf(nightlampInt) + " "+ valueOf(tvInt) + " " + valueOf(xboxInt) + " "
+            return valueOf(livingP) + " " + valueOf(bedP) + " " + valueOf(studyP) + " " + valueOf(kitchenP) + " " + valueOf(nightlampInt) + " "+ valueOf(tvInt) + " " + valueOf(xboxInt) + " "
                     + valueOf(pcInt) + " "+ valueOf(livinglampInt) + "\n";
         }
         else
-            return null;*/
+            return null;
+           */
     }
 
     public String viewData(){
         Timestamp ts =new Timestamp(System.currentTimeMillis());
-        return "Time:" + valueOf(ts) + "\t" + "Data:" + Arrays.toString(message) + "\n";
+       // return "Data:" + Arrays.toString(message) + "\n";
+        return "Data: 0 1 0 1 0 0 0 1 0\n";
+        //return "Data: 1 0 0 0 0 1 0 0 0";
     }
 
     public static void main(String[] args) {
