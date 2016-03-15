@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Random;
 
 import static java.lang.String.valueOf;
 
@@ -773,7 +774,7 @@ public class MCHESS extends Thread {
 
     public String passData(){
         //System.out.println("In");
-        return "1 0 0 0 0 1 0 0 0";
+        return "1 0 0 1 0 1 1 0 0";
        /*
         if(sh.isRecognize()){
             int nightlampInt = boolToInt(nightlamp);
@@ -794,8 +795,12 @@ public class MCHESS extends Thread {
     public String viewData(){
         Timestamp ts =new Timestamp(System.currentTimeMillis());
        // return "Data:" + Arrays.toString(message) + "\n";
-        return "Data: 0 1 0 1 0 0 0 1 0\n";
-        //return "Data: 1 0 0 0 0 1 0 0 0";
+       // return "Data: 0 1 0 1 0 0 0 1 0\n";
+        double x = new Random().nextDouble()*3+103;
+        double z = new Random().nextDouble()*4+30;
+        double y = new Random().nextDouble()*4+80;
+        return "2 0 0 0 0 "+ (int)(Math.round(x*100.0))/100.0 +" "+(int)(Math.round(y*100.0))/100.0 +" " +(int)(Math.round(z*100.0))/100.0 + " 0 ";
+        //return "Data: 1 0 0 0 0 0 "+ (int)(Math.round(z*100.0))/100.0 + " 0 0";
     }
 
     public static void main(String[] args) {
