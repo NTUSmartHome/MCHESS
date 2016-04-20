@@ -1,6 +1,10 @@
 import com.sun.org.apache.bcel.internal.generic.GOTO;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import utilities.JsonBuilder;
 import utilities.communicator.MQListener;
+import utilities.communicator.MQTTSubscriber;
 import utilities.communicator.Producer;
 import utilities.dataobjects.Message;
 
@@ -20,7 +24,7 @@ import com.company.*;
 /**
  * Created by YaHung on 2015/9/8.
  */
-public class MCHESS extends Thread {
+public class MCHESS extends Thread implements MqttCallback{
     SHSystem sh = new SHSystem();
     //people
     int livingP = 1;
@@ -66,6 +70,8 @@ public class MCHESS extends Thread {
         //Build MQ Listener
         mq = new MQListener();
         mq.start();
+        MQTTSubscriber sad = new MQTTSubscriber();
+        sad.start(this);
         System.out.println("MQ is opened");
 
     }
@@ -809,5 +815,20 @@ public class MCHESS extends Thread {
         Thread mchess = new MCHESS("-run");
         //Thread mchess = new MCHESS("-run");
         mchess.start();
+    }
+
+    @Override
+    public void connectionLost(Throwable throwable) {
+
+    }
+
+    @Override
+    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+
     }
 }
