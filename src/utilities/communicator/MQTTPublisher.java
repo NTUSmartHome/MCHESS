@@ -7,9 +7,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  * Created by g2525_000 on 2016/4/20.
  */
 public class MQTTPublisher {
-    public static final String HOST = "tcp://localhost:1883";
-    public static final String TOPIC = "solarpower";
-    public static final String clientID = "MCHESSServer";
+    private String HOST = "tcp://localhost:1883";
+    private String TOPIC = "solarpower";
+    private String clientID = "MCHESSServer";
     private MqttClient client;
 
     public MQTTPublisher() throws MqttException {
@@ -42,6 +42,38 @@ public class MQTTPublisher {
         MqttDeliveryToken token = mqttTopic.publish(mqttMessage);
         token.waitForCompletion();
         System.out.println("Message is published");
+    }
+
+    public String getHOST() {
+        return HOST;
+    }
+
+    public void setHOST(String HOST) {
+        this.HOST = HOST;
+    }
+
+    public String getTOPIC() {
+        return TOPIC;
+    }
+
+    public void setTOPIC(String TOPIC) {
+        this.TOPIC = TOPIC;
+    }
+
+    public String getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(String clientID) {
+        this.clientID = clientID;
+    }
+
+    public MqttClient getClient() {
+        return client;
+    }
+
+    public void setClient(MqttClient client) {
+        this.client = client;
     }
 
     public static void main(String[] args) throws MqttException {
