@@ -47,6 +47,7 @@ public class MQTTSubscriber {
         options.setConnectionTimeout(10);
         //設置確認時間
         options.setKeepAliveInterval(20);
+
     }
 
     public void start(MqttCallback mqttCallback) {
@@ -76,10 +77,6 @@ public class MQTTSubscriber {
     }
 
     public void start() {
-        if (Qos == null) {
-            System.out.println("Please set Qos");
-            return;
-        }
 
         if (options == null) {
             System.out.println("Please set options");
@@ -166,6 +163,8 @@ public class MQTTSubscriber {
     }
 
     public void setMqttCallback(MqttCallback mqttCallback) {
+        //設置callback
+        client.setCallback(mqttCallback);
         this.mqttCallback = mqttCallback;
     }
 
