@@ -1,6 +1,7 @@
+import com.sun.org.apache.bcel.internal.classfile.Synthetic;
 import com.sun.org.apache.bcel.internal.generic.GOTO;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import utilities.JsonBuilder;
 import utilities.communicator.MQListener;
@@ -8,6 +9,8 @@ import utilities.communicator.MQTTSubscriber;
 import utilities.communicator.Producer;
 import utilities.dataobjects.Message;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,12 +27,12 @@ import com.company.*;
 /**
  * Created by YaHung on 2015/9/8.
  */
-public class MCHESS extends Thread implements MqttCallback{
+public class MCHESS extends Thread {
     SHSystem sh = new SHSystem();
     //people
-    int livingP = 1;
-    int bedP = 1;
-    int studyP = 1;
+    int livingP = 0;
+    int bedP = 0;
+    int studyP = 0;
     int kitchenP = 0;
     int totalP = 0;
     //ap
@@ -38,6 +41,12 @@ public class MCHESS extends Thread implements MqttCallback{
     boolean xbox = false;
     boolean pc = false;
     boolean livinglamp = false;
+    boolean fan = false;
+    boolean hue = false;
+    boolean hue1 = false;
+    boolean hue2 = false;
+    boolean outlet1 = false;
+    boolean outlet2 = false;
     //activities
     boolean sleep = false;
     boolean watchTV = false;
@@ -61,24 +70,207 @@ public class MCHESS extends Thread implements MqttCallback{
 
     boolean firstAct = false;
     boolean checkGoOut = false;
+    JSONObject newMsg = new JSONObject();
+
     FileWriter pw;
 
     MQListener mq;
+    MQTTSubscriber sad;
 
     public MCHESS(String option){
         System.out.println("Start MCHESS");
         //Build MQ Listener
         mq = new MQListener();
-        mq.start();
-        MQTTSubscriber sad = new MQTTSubscriber();
-        sad.start(this);
+        sad = new MQTTSubscriber();
+        //sad.start(new mchess_callback());
         System.out.println("MQ is opened");
-
+        Thread mqt = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mq.start();
+                sad.start(new mchess_callback());
+            }
+        });
+        mqt.start();
     }
 
 
 
     public void run(){
+        //Open File
+        Timestamp timestamps =new Timestamp(System.currentTimeMillis());
+        String fileName = timestamps.toString();
+        try {
+            pw = new FileWriter(fileName, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for(int i=0;i<9;i++) message[i] = 0.0;
+
+        while(true){
+            Thread.yield();
+            if(sh.isCollect()) {
+                sh.setMessage(viewData());
+            }
+            if(sad.checknewmsg()||mq.checkNewMsg()){
+                JSONObject msg2 = newMsg;
+                Message msg = mq.getMsg();
+                if(sh.isRecognize())
+                    sh.recognize(passData());
+                if (msg.isSensorData()) {
+                    if(mq.checkNewMsg()) {
+                        if (msg.getSubject().equals("people")) {
+                            if (msg.getId() == 1) {
+                                //System.out.println("living room people is "+msg.getId());
+                                //System.out.println("L:[" + livingP + ']');
+                                livingP = (int) msg.getValue();
+                                message[0] = livingP;
+                                //System.out.println("L:"+livingP);
+                            } else if (msg.getId() == 5) {
+                                //System.out.println("B:["+bedP+']');
+                                bedP = (int) msg.getValue();
+                                message[1] = bedP;
+                                //System.out.println("B:"+bedP);
+                            } else if (msg.getId() == 4) {
+
+                                kitchenP = (int) msg.getValue();
+                                message[3] = kitchenP;
+                            } else if (msg.getId() == 2) {
+                                //System.out.println("S:["+studyP+']');
+                                studyP = (int) msg.getValue();
+                                message[2] = studyP;
+                                //System.out.println("S:"+studyP);
+                            }
+                        }
+                    }
+                }
+                try {
+                    /*if(msg2.getString("name").equals("switch")) {
+                        if (msg2.getString("displayName").equals("Hue Lamp")) {
+                            hue = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Hue Lamp 1")) {
+                            hue1 = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Hue Lamp 2")) {
+                            hue2 = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet1")) {
+                            outlet1 = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet2")) {
+                            outlet2 = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet_Bedroom_PC")) {
+                            pc = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet_LivingRoom_Fan")) {
+                            fan = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet_LivingRoom_TV")) {
+                            tv = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet_NightLamp")) {
+                            nightlamp = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet_GroundLamp")) {
+                            livinglamp = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        if (msg2.getString("displayName").equals("Outlet_Xbox")) {
+                            xbox = ((msg2.getString("value").equals("on")) ? true : false);
+                        }
+                        sad.setmsg();
+                    }*/
+                    if(sad.checknewmsg()) {
+                        if (msg2.getString("name").equals("power") ) {
+                            if (msg2.getString("displayName").equals("Hue Lamp")) {
+                                hue = ((msg2.getString("value").equals("on")) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Hue Lamp 1")) {
+                                hue1 = ((msg2.getString("value").equals("on")) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Hue Lamp 2")) {
+                                hue2 = ((msg2.getString("value").equals("on")) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet1")) {
+                                outlet1 = ((msg2.getString("value").equals("on")) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet2")) {
+                                outlet2 = ((msg2.getString("value").equals("on")) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet_Bedroom_PC")) {
+                                pc = ((Double.parseDouble(msg2.getString("value")) > 3) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet_LivingRoom_Fan")) {
+                                fan = ((Double.parseDouble(msg2.getString("value")) > 3) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet_LivingRoom_TV")) {
+                                tv = ((Double.parseDouble(msg2.getString("value")) > 3) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet_NightLamp")) {
+                                nightlamp = ((Double.parseDouble(msg2.getString("value")) > 2) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet_GroundLamp")) {
+                                livinglamp = ((Double.parseDouble(msg2.getString("value")) > 1) ? true : false);
+                            }
+                            if (msg2.getString("displayName").equals("Outlet_Xbox")) {
+                                xbox = ((Double.parseDouble(msg2.getString("value")) > 3) ? true : false);
+                            }
+                            sad.setmsg();
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if(firstAct){
+                    if(sh.isCollect()) {
+                        sh.setMessage(viewData());
+                    }
+                    timestamps = new Timestamp(System.currentTimeMillis());
+                    int nightlampInt = boolToInt(nightlamp);
+                    int tvInt = boolToInt(tv);
+                    int xboxInt = boolToInt(xbox);
+                    int pcInt = boolToInt(pc);
+                    int livinglampInt = boolToInt(livinglamp);
+                    int fanInt = boolToInt(fan);
+                    int hueInt = boolToInt(hue);
+                    int hue1Int = boolToInt(hue1);
+                    int hue2Int = boolToInt(hue2);
+                    int outlet1Int = boolToInt(outlet1);
+                    int outlet2Int = boolToInt(outlet2);
+                    //livingP+bedP+StudyP+KitchenP+nightlamp+tv+xbox+pc+livinglamp
+                    String data = valueOf(livingP) + "\t" + valueOf(bedP) + "\t" + valueOf(studyP) + "\t" + valueOf(kitchenP) + "\t" + valueOf(nightlampInt) + "\t"+ valueOf(tvInt) + "\t" + valueOf(xboxInt) + "\t"
+                            + valueOf(pcInt) + "\t"+ valueOf(livinglampInt) + "\t"+ valueOf(fanInt) + "\t"+ valueOf(hueInt) + "\t"+ valueOf(hue1Int) + "\t"+ valueOf(hue2Int) + "\t"+ valueOf(outlet1Int) + "\t"+ valueOf(outlet2Int) + "\n";
+                    String output = timestamps.toString() + "\t" + data;
+                    try {
+                        pw.append(output);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        pw.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(checkAct2()){
+                    firstAct = true;
+                    try {
+                        // System.out.println(System.currentTimeMillis());
+                        sleep(500);
+                        //System.out.println(System.currentTimeMillis());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    checkControl();
+                }
+                //System.out.println("All device :"+hue+hue1+hue2+outlet1+outlet2+pc+fan+tv+nightlamp+livinglamp+xbox);
+            }
+        }
+    }
+
+    public void run2(){
         //Open File
         Timestamp timestamps =new Timestamp(System.currentTimeMillis());
         String fileName = timestamps.toString();
@@ -101,7 +293,7 @@ public class MCHESS extends Thread implements MqttCallback{
                     if (msg.getSubject().equals("people")) {
                         if (msg.getId() == 1 ) {
                             //System.out.println("living room people is "+msg.getId());
-                            //System.out.println("L:["+livingP+']');
+                            System.out.println("L:["+livingP+']');
                             livingP = (int)msg.getValue();
                             message[0] = livingP;
                             //System.out.println("L:"+livingP);
@@ -816,19 +1008,29 @@ public class MCHESS extends Thread implements MqttCallback{
         //Thread mchess = new MCHESS("-run");
         mchess.start();
     }
+    private class mchess_callback implements MqttCallback{
+        @Override
+        public void connectionLost(Throwable throwable) {
+            System.out.println("Disconnected");
+        }
 
-    @Override
-    public void connectionLost(Throwable throwable) {
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            String MSG = new String(message.getPayload());
+            sad.newmsg();
+            newMsg = new JSONObject(MSG);
+            sad.setjsonmsg(newMsg);
+            //System.out.println("Topic :" + topic );
+            //System.out.println("Qos : " + message.getQos());
+            //System.out.println("Message : " + MSG);
+        }
 
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+
+        }
     }
 
-    @Override
-    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
 
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
-    }
 }
+
