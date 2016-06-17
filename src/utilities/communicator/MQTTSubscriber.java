@@ -2,18 +2,23 @@ package utilities.communicator;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONObject;
+import utilities.dataobjects.Message;
 
 /**
  * Created by g2525_000 on 2016/4/20.
  */
 public class MQTTSubscriber {
     private String HOST = "tcp://localhost:1883";
-    private String TOPIC = "solarpower";
-    private String clientID = "MCHESS";
+    private String TOPIC = "smartthings-pei";
+    private String clientID = "MCHESS-test";
     private MqttClient client;
     private MqttConnectOptions options;
     private MqttCallback mqttCallback;
     private int[] Qos;
+    public boolean flag = false;
+    Message msg = new Message("{\"subject\":\"start\"}");
+    JSONObject jsonmsg = new JSONObject();
 
 
     public MQTTSubscriber() {
@@ -52,6 +57,7 @@ public class MQTTSubscriber {
 
     public void start(MqttCallback mqttCallback) {
         try {
+
             this.mqttCallback = mqttCallback;
             //HOST 主機位置，ID 連接MQTT之客戶端ID， MemoryPersistence設置clientid的保存形式，默認是內存
             client = new MqttClient(HOST, clientID, new MemoryPersistence());
@@ -70,14 +76,12 @@ public class MQTTSubscriber {
             Qos = new int[]{1};
             String[] topics = {TOPIC};
             client.subscribe(topics, Qos);
-
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
 
     public void start() {
-
         if (options == null) {
             System.out.println("Please set options");
             return;
@@ -103,6 +107,7 @@ public class MQTTSubscriber {
 
     public void subscribe(String topic) {
         try {
+
             int[] qos ={1};
             client.subscribe(new String[]{topic});
         } catch (MqttException e) {
@@ -174,5 +179,23 @@ public class MQTTSubscriber {
 
     }
 
+    public void newmsg(){
+        flag = true;
+    }
 
+    public void setmsg(){
+        flag = false;
+    }
+
+    public boolean checknewmsg(){
+        return flag;
+    }
+
+    public void setjsonmsg(JSONObject jmsg){
+        jsonmsg = jmsg;
+    }
+
+    public JSONObject getjsonmsg(){
+        return jsonmsg;
+    }
 }
