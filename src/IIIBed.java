@@ -113,12 +113,13 @@ public class IIIBed {
         }
         bedSubscriber = new MQTTSubscriber(HOST);
         bedSubscriber.getOptions().setUserName("ntu_cs");
-        bedSubscriber.getOptions().setPassword("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiI1NzQyODcwNjE4MTMxZTBmYTRiNWEwZDgiLCJpYXQiOjE0NjUyNzE0OTMsImV4cCI6MTQ2NjQ4MTA5MywiaXNzIjoiZ2V0c21hcnR4LmNvbSJ9.VaYLNtBAU1f4qxPJpoqLRYodLfuCxt2Om5e4SeDFFIk".toCharArray());
+        bedSubscriber.getOptions().setPassword("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiI1NzQyODcwNjE4MTMxZTBmYTRiNWEwZDgiLCJpYXQiOjE0Njc3MDQyMTksImV4cCI6MTQ2ODkxMzgxOSwiaXNzIjoiZ2V0c21hcnR4LmNvbSJ9.1mp2h3opa4W9qGMKq8r8tZicz-qRdP_DbB90L-kdqx4".toCharArray());
         bedSubscriber.setMqttCallback(new BedCallBack());
         bedSubscriber.start();
         System.out.println("connect success");
         bedSubscriber.subscribe("5742870618131e0fa4b5a0d8/055000000000000000000000_D");
         bedSubscriber.subscribe("5742870618131e0fa4b5a0d8/025000000000000000000000_D");
+        bedSubscriber.subscribe("5742870618131e0fa4b5a0d8/045000000000000000000000_D");
     }
 
     public static void main(String[] args) {
