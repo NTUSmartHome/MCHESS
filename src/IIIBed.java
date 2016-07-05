@@ -52,6 +52,13 @@ public class IIIBed {
                     file_flag += 1;
                 }
             }
+            if (topic.contains("0450")) {
+                System.out.println("0450");
+                if (file_flag == 1) {
+                    fw.write("0450" + ",");
+                    file_flag += 1;
+                }
+            }
             if (jsonObject.get("_id").equals("188")) {
                 System.out.println("呼吸 : " + jsonObject1.get("data"));
                 //fw.write("呼吸:" + jsonObject1.get("data") + ";");
