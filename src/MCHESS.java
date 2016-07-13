@@ -8,6 +8,7 @@ import utilities.communicator.MQListener;
 import utilities.communicator.MQTTSubscriber;
 import utilities.communicator.Producer;
 import utilities.dataobjects.Message;
+import utilities.communicator.GetUrl;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,6 +68,9 @@ public class MCHESS extends Thread {
 
     double[] message = new double[9];
 
+    GetUrl lightControlAgent = new GetUrl();
+
+
 
     boolean firstAct = false;
     boolean checkGoOut = false;
@@ -77,7 +81,7 @@ public class MCHESS extends Thread {
     MQListener mq;
     MQTTSubscriber sad;
 
-    public MCHESS(String option){
+    public MCHESS(String option) throws IOException {
         System.out.println("Start MCHESS");
         //Build MQ Listener
         mq = new MQListener();
@@ -461,7 +465,7 @@ public class MCHESS extends Thread {
     }
 
     private void closeLightR(){
-        if(lightR>0){
+        /*if(lightR>0){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -470,10 +474,15 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "livingroom-ring-light_0").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(3, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     private void closeLightC(){
-        if(lightC>0){
+        /*if(lightC>0){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -482,11 +491,17 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "livingroom-central-light_0").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(1, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
 
     private void closeLightS(){
-        if(lightS>0){
+        /*if(lightS>0){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -495,11 +510,16 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "study-light_0").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(4, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private void closeLightK(){
-        if(lightK>0){
+        /*if(lightK>0){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -508,11 +528,16 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "kitchen-light_0").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(2, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private void closeLightB(){
-        if(lightB>0){
+        /*if(lightB>0){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -521,10 +546,15 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "bedroom-light_0").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(5, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     private void closeAllLight(){
-        closeLightB();
+        /*closeLightB();
 
         try {
            // System.out.println(System.currentTimeMillis());
@@ -540,15 +570,30 @@ public class MCHESS extends Thread {
         closeLightS();
         for (int i = 0; i < 50000; i++) { }
         closeLightR();
+        */
+        for(int i=0;i<5;i++) {
+            try {
+                lightControlAgent.controlDeviceLight(i+1, 0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
     private void closeLightWithoutCR(){
-        closeLightB();
+        /*closeLightB();
         closeLightK();
-        closeLightS();
+        closeLightS();*/
+        try {
+            lightControlAgent.controlDeviceLight(2, 0);
+            lightControlAgent.controlDeviceLight(4, 0);
+            lightControlAgent.controlDeviceLight(5, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void openLightC(){
-        if(lightC<20){
+        /*if(lightC<20){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -557,11 +602,16 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "livingroom-central-light_90").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(1, 99);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private void openLightC_Low(){
-        if(lightC<20){
+        /*if(lightC<20){
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
             while(!producer.connect());
@@ -570,11 +620,16 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "livingroom-central-light_20").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(1, 30);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private void openLightR(){
-        if(lightR<20){
+        /*if(lightR<20){
             //System.out.println("ring light is close");
             Producer producer = new Producer();
             producer.setURL("tcp://140.112.49.154:61616");
@@ -584,6 +639,11 @@ public class MCHESS extends Thread {
             JsonBuilder json = new JsonBuilder();
             json.reset();
             producer.sendOut(json.add("value", "livingroom-ring-light_90").add("change", "Darken").toJson(),"ssh.COMMAND");
+        }*/
+        try {
+            lightControlAgent.controlDeviceLight(3, 99);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -597,6 +657,7 @@ public class MCHESS extends Thread {
         JsonBuilder json = new JsonBuilder();
         json.reset();
         producer.sendOut(json.add("value", "DOOR-LIGHT_OFF").toJson(),"ssh.COMMAND");
+
 
     }
 
@@ -1001,7 +1062,7 @@ public class MCHESS extends Thread {
         //return "Data: 1 0 0 0 0 0 "+ (int)(Math.round(z*100.0))/100.0 + " 0 0";
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         //Thread mchess = new MCHESS("-train");
         Thread mchess = new MCHESS("-run");
