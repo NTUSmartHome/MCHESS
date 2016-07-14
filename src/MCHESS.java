@@ -36,6 +36,7 @@ public class MCHESS extends Thread {
     int studyP = 0;
     int kitchenP = 0;
     int totalP = 0;
+    int COMEBACK = 0;
     //ap
     boolean nightlamp = false;
     boolean tv = false;
@@ -113,6 +114,11 @@ public class MCHESS extends Thread {
 
         while(true){
             Thread.yield();
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if(sh.isCollect()) {
                 sh.setMessage(viewData());
             }
@@ -141,7 +147,8 @@ public class MCHESS extends Thread {
                                 message[3] = kitchenP;
                             } else if (msg.getId() == 2) {
                                 //System.out.println("S:["+studyP+']');
-                                studyP = (int) msg.getValue();
+                                studyP = 0;
+                                // studyP = (int) msg.getValue();
                                 message[2] = studyP;
                                 //System.out.println("S:"+studyP);
                             }
@@ -209,7 +216,7 @@ public class MCHESS extends Thread {
                                 fan = ((Double.parseDouble(msg2.getString("value")) > 3) ? true : false);
                             }
                             if (msg2.getString("displayName").equals("Outlet_LivingRoom_TV")) {
-                                tv = ((Double.parseDouble(msg2.getString("value")) > 3) ? true : false);
+                                tv = ((Double.parseDouble(msg2.getString("value")) > 16) ? true : false);
                             }
                             if (msg2.getString("displayName").equals("Outlet_NightLamp")) {
                                 nightlamp = ((Double.parseDouble(msg2.getString("value")) > 2) ? true : false);
@@ -222,12 +229,36 @@ public class MCHESS extends Thread {
                             }
                             sad.setmsg();
                         }
+                        /*if (msg2.getString("name").equals("contact") ) {
+                            if (msg2.getString("displayName").equals("Multipurpose Sensor")) {
+                                if(msg2.getString("value").equals("open")) {
+                                    COMEBACK = 1;
+                                }
+                                if(msg2.getString("value").equals("closed")) {
+                                    COMEBACK = 0;
+                                }
+                            }
+                            sad.setmsg();
+                        }*/
+                        if (msg2.getString("name").equals("motion") ) {
+                            if (msg2.getString("displayName").equals("Motion_LivingRoom")) {
+                                System.out.println(msg2.getString("value"));
+                                if(msg2.getString("value").equals("active")) {
+                                    COMEBACK = 1;
+                                }
+                                if(msg2.getString("value").equals("inactive")) {
+                                    COMEBACK = 0;
+                                }
+                            }
+                            sad.setmsg();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
                 if(firstAct){
+
                     if(sh.isCollect()) {
                         sh.setMessage(viewData());
                     }
@@ -259,6 +290,7 @@ public class MCHESS extends Thread {
                     }
                 }
                 if(checkAct2()){
+                    System.out.println("checkact");
                     firstAct = true;
                     try {
                         // System.out.println(System.currentTimeMillis());
@@ -477,7 +509,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(3, 0);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -494,7 +529,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(1, 0);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -513,7 +551,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(4, 0);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -531,7 +572,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(2, 0);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -549,7 +593,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(5, 0);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -574,7 +621,10 @@ public class MCHESS extends Thread {
         for(int i=0;i<5;i++) {
             try {
                 lightControlAgent.controlDeviceLight(i+1, 0);
+                Thread.sleep(50);
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
@@ -585,9 +635,14 @@ public class MCHESS extends Thread {
         closeLightS();*/
         try {
             lightControlAgent.controlDeviceLight(2, 0);
+            Thread.sleep(50);
             lightControlAgent.controlDeviceLight(4, 0);
+            Thread.sleep(50);
             lightControlAgent.controlDeviceLight(5, 0);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -605,7 +660,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(1, 99);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -623,7 +681,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(1, 30);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -642,7 +703,10 @@ public class MCHESS extends Thread {
         }*/
         try {
             lightControlAgent.controlDeviceLight(3, 99);
+            Thread.sleep(50);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -710,6 +774,7 @@ public class MCHESS extends Thread {
 
     private void forWatchTV(){
         //closeLightWithoutCR();
+
         closeLightS();
         closeLightB();
         openLightC();
@@ -798,7 +863,7 @@ public class MCHESS extends Thread {
         openLightH();
         sendAct("ComeBack");
         try {
-            sleep(5000);
+            sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -834,6 +899,7 @@ public class MCHESS extends Thread {
 
     public boolean checkAct2(){
         boolean changeAct = false;
+        goOutDuration = false;
         if(!goOutDuration){
             totalP = livingP + bedP + studyP;      //Total
             if(bedP > 0 && livingP > 0 && pc && tv){
@@ -887,18 +953,21 @@ public class MCHESS extends Thread {
                 }
             }else if(livingP == 0 && bedP == 0 && studyP == 0 && kitchenP == 0){
                 //Go out
+
                 if (!checkGoOut) {
                     //  if(System.currentTimeMillis() > checkGoOutTime){
                     int count = 0;
                     if (System.currentTimeMillis() > checkGoOutTime)
-                        checkGoOutTime = System.currentTimeMillis() + 2000;
+                        checkGoOutTime = System.currentTimeMillis() + 1000;
 
                     checkGoOut = true;
 
                 } else {
-                    checkGoOut = false;
+
                     if ((System.currentTimeMillis() > checkGoOutTime) && livingP == 0 && bedP == 0 && studyP == 0 && kitchenP == 0) {
-                        if (!goOut) {
+                        System.out.println("go out wait for no motion");
+                        if (!goOut && COMEBACK == 0) {
+                            checkGoOut = false;
                             setDefault();
                             goOut = true;
                             changeAct = true;
@@ -907,7 +976,8 @@ public class MCHESS extends Thread {
                     }
                 }
             }
-            if (goOut && (livingP > 0 || bedP > 0 || studyP > 0 || kitchenP > 0)) {
+            if (goOut && (COMEBACK > 0)) {
+            //if (goOut && (livingP > 0 || bedP > 0 || studyP > 0 || kitchenP > 0)) {
                 setDefault();
                 comeBack = true;
                 changeAct = true;
@@ -957,7 +1027,7 @@ public class MCHESS extends Thread {
                     //  if(System.currentTimeMillis() > checkGoOutTime){
                     int count = 0;
                     if (System.currentTimeMillis() > checkGoOutTime)
-                        checkGoOutTime = System.currentTimeMillis() + 8000;
+                        checkGoOutTime = System.currentTimeMillis() + 1000;
 
                     checkGoOut = true;
 
